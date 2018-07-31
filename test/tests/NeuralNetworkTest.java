@@ -58,7 +58,7 @@ public class NeuralNetworkTest {
             new int[]{2, 2, 1},
             new ActivationType[]{
                 ActivationType.TANH,
-                ActivationType.TANH
+                ActivationType.SIGMOID
             },
             LossType.MSE,
             0.05

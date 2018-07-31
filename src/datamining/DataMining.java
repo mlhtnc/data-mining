@@ -28,5 +28,4 @@ public class DataMining
         league.playCurrMatch();
         league.printTable();
     }
-    
 }

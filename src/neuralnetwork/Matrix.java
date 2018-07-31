@@ -1,6 +1,7 @@
 package neuralnetwork;
 
 import java.util.Random;
+import java.util.function.Function;
 
 /**
  *
@@ -278,6 +279,21 @@ public class Matrix
                 data[i][j] = rnd.nextDouble() * 2f - 1f;
             }
         }
+    }
+    
+    public static Matrix map(Matrix m, Function<Double, Double> func)
+    {
+        Matrix mapped = new Matrix(m.rows, m.cols);
+        
+        for(int i = 0; i < m.rows; ++i)
+        {
+            for(int j = 0; j < m.cols; ++j)
+            {
+                mapped.data[i][j] = func.apply(m.data[i][j]);
+            }
+        }
+        
+        return mapped;
     }
     
     /**

@@ -57,11 +57,11 @@ public class NeuralNetworkTest {
         NeuralNetwork nn = new NeuralNetwork(
             new int[]{2, 2, 1},
             new ActivationType[]{
-                ActivationType.SIGMOID,
-                ActivationType.SIGMOID
+                ActivationType.TANH,
+                ActivationType.TANH
             },
             LossType.MSE,
-            0.1
+            0.05
         );
         
         // Train randomly

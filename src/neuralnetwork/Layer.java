@@ -69,7 +69,7 @@ public class Layer
             case SIGMOID:
                 return ActivationFunc.sigmoid(input);
             case TANH:
-                return ActivationFunc.derSigmoid(input);
+                return ActivationFunc.tanh(input);
             default:
                 System.err.println("Error: Undefined Activation Type");
                 return null;

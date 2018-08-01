@@ -15,10 +15,10 @@ public class Layer
     private Matrix output;
     private Matrix output_d_E;
     
-    private Matrix weights;
-    private Matrix biases;
+    private final Matrix weights;
+    private final Matrix biases;
     
-    private ActivationType activationType;
+    private final ActivationType activationType;
     
     public Layer(int inputNeurons, int nextLayerNeurons, ActivationType activationType)
     {
@@ -32,8 +32,7 @@ public class Layer
     public void feedForward()
     {
         output = Matrix.naiveMult(weights, input);
-        output = Matrix.add(output, biases);
-        output = applyActivationFunction(output);
+        output = applyActivationFunction(output.add(biases));
         
         // Attach output to next layer. If this is last layer, we cannot attach,
         // because there is no output layer.
@@ -46,15 +45,15 @@ public class Layer
     
     public void backpropagation()
     {
-        Matrix net_d_E   = calcDerivativeOfErrorWrtNet();
+        Matrix net_d_E   = calcDerivativeOfLossWrtNet();
         Matrix w_d_E     = Matrix.naiveMult(net_d_E, Matrix.transpose(input));
         Matrix input_d_E = Matrix.naiveMult(Matrix.transpose(weights), net_d_E);
         
         // Update weights
-        weights = Matrix.sub(weights, Matrix.mult(w_d_E, network.learningRate));
+        weights.sub(w_d_E.mult(network.learningRate));
         
         // Update biases
-        biases = Matrix.sub(biases, Matrix.mult(net_d_E, network.learningRate));
+        biases.sub(net_d_E.mult(network.learningRate));
         
         // Backpropagate the gradients to input layer of this layer.
         // If input layer is null, there is nothing to backpropagate.
@@ -76,11 +75,11 @@ public class Layer
         }
     }
     
-    private Matrix calcDerivativeOfErrorWrtNet()
+    private Matrix calcDerivativeOfLossWrtNet()
     {
-        Matrix net_d_E;
+        Matrix net_d_output;
         
-        // If this layer is last layer
+        // If this layer is last layer, calculate loss.
         if(outputLayer == null)
         {
             if(network.lossType == LossType.MSE)
@@ -97,17 +96,19 @@ public class Layer
         switch(activationType)
         {
             case SIGMOID:
-                net_d_E = Matrix.mult(output_d_E, ActivationFunc.derSigmoid(output));
+                net_d_output = ActivationFunc.derSigmoid(output);
                 break;
             case TANH:
-                net_d_E = Matrix.mult(output_d_E, ActivationFunc.derTanh(output));
+                net_d_output = ActivationFunc.derTanh(output);
                 break;
             default:
                 System.err.println("Error: Undefined activation type");
                 return null;
         }
         
-        return net_d_E;
+        // Return derivative of output w.r.t net.
+        // net = w.x + b
+        return Matrix.mult(output_d_E, net_d_output);
     }
 
     public void setNetwork(NeuralNetwork network) {

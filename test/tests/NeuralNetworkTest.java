@@ -40,6 +40,8 @@ public class NeuralNetworkTest {
     @Test
     public void testNeuralNetwork_XOR()
     {
+        Matrix.rnd = new Random(333);
+        
         Matrix[] inputs = new Matrix[4];
         inputs[0] = new Matrix(new double[][]{ {0.0},{0.0} });
         inputs[1] = new Matrix(new double[][]{ {0.0},{1.0} });
@@ -51,25 +53,21 @@ public class NeuralNetworkTest {
         targets[1] = new Matrix(new double[][]{ {1.0} });
         targets[2] = new Matrix(new double[][]{ {1.0} });
         targets[3] = new Matrix(new double[][]{ {0.0} });
-
-        Random rnd = new Random();
         
         NeuralNetwork nn = new NeuralNetwork(
             new int[]{2, 2, 1},
             new ActivationType[]{
                 ActivationType.TANH,
-                ActivationType.SIGMOID
+                ActivationType.TANH
             },
             LossType.MSE,
             0.05
         );
         
-        // Train randomly
         for(int i = 0; i < 50000; i++)
         {
-            int index = rnd.nextInt(4);
-            nn.setInput(inputs[index]);
-            nn.setTarget(targets[index]);
+            nn.setInput(inputs[i%4]);
+            nn.setTarget(targets[i%4]);
             nn.feedForward();
             nn.backpropagation();
         }
@@ -80,6 +78,8 @@ public class NeuralNetworkTest {
             nn.setInput(inputs[i]);
             nn.setTarget(targets[i]);
             nn.feedForward();
+            
+            assertTrue(Math.abs(targets[i].data[0][0] - nn.getOutput().data[0][0]) < 0.5);
 
             System.out.print("Output: " + nn.getOutput());
             System.out.println(String.format("Error: %.10f\n", nn.getLoss()));

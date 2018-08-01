@@ -8,14 +8,12 @@ import java.util.function.Function;
  * @author tnc
  */
 public class Matrix
-{
-    // TODO: Add some non-static methods for operations.
-    
+{    
     public int rows;
     public int cols;
     public double[][] data;
     
-    static Random rnd = new Random();
+    public static Random rnd = new Random();
     
     public Matrix(int rows, int cols)
     {
@@ -51,6 +49,19 @@ public class Matrix
     *    E L E M E N T - W I S E  O P E R A T I O N S
     */
     
+    public Matrix add(Matrix m)
+    {        
+        for (int i = 0; i < m.rows; i++)
+        {
+            for (int j = 0; j < m.cols; j++)
+            {
+                this.data[i][j] += m.data[i][j];
+            }
+        }
+        
+        return this;
+    }
+    
     public static Matrix add(Matrix m1, Matrix m2)
     {
         Matrix sum = new Matrix(m1.rows, m1.cols);
@@ -64,6 +75,19 @@ public class Matrix
         }
         
         return sum;
+    }
+    
+    public Matrix sub(Matrix m)
+    {        
+        for (int i = 0; i < m.rows; i++)
+        {
+            for (int j = 0; j < m.cols; j++)
+            {
+                this.data[i][j] -= m.data[i][j];
+            }
+        }
+        
+        return this;
     }
 
     public static Matrix sub(Matrix m1, Matrix m2)
@@ -157,6 +181,19 @@ public class Matrix
         return negative(sub(m, x));
     }
 
+    public Matrix mult(double x)
+    {        
+        for (int i = 0; i < this.rows; i++)
+        {
+            for (int j = 0; j < this.cols; j++)
+            {
+                this.data[i][j] *= x;
+            }
+        }
+        
+        return this;
+    }
+    
     public static Matrix mult(Matrix m, double x)
     {
         Matrix mult = new Matrix(m.rows, m.cols);
@@ -308,9 +345,9 @@ public class Matrix
 
         for (int i = 0; i < m1.rows; i++)
         {
-            for (int j = 0; j < m2.cols; j++)
+            for (int k = 0; k < m1.cols; k++)
             {
-                for (int k = 0; k < m1.cols; k++)
+                for (int j = 0; j < m2.cols; j++)
                 {
                     product.data[i][j] += m1.data[i][k] * m2.data[k][j];
                 }

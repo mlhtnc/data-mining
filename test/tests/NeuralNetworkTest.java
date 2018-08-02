@@ -41,7 +41,7 @@ public class NeuralNetworkTest {
     public void testNeuralNetwork_XOR()
     {
         Matrix.rnd = new Random(333);
-        
+
         Matrix[] inputs = new Matrix[4];
         inputs[0] = new Matrix(new double[][]{ {0.0},{0.0} });
         inputs[1] = new Matrix(new double[][]{ {0.0},{1.0} });
@@ -64,13 +64,8 @@ public class NeuralNetworkTest {
             0.05
         );
         
-        for(int i = 0; i < 50000; i++)
-        {
-            nn.setInput(inputs[i%4]);
-            nn.setTarget(targets[i%4]);
-            nn.feedForward();
-            nn.backpropagation();
-        }
+        Trainer trainer = new Trainer(nn, inputs, targets);
+        trainer.train(12500);
         
         // Test
         for(int i = 0; i < 4; i++)

@@ -1,6 +1,9 @@
 package datamining;
 
 import java.io.File;
+import neuralnetwork.ActivationType;
+import neuralnetwork.LossType;
+import neuralnetwork.NeuralNetwork;
 
 /**
  *
@@ -15,14 +18,18 @@ public class DataMining
     {
         League league = CSV_Reader.read(dataPath);
 
-        Match m = league.getCurrMatch();
-        m.print();
-        league.playCurrMatch();
-        league.printTable();
-
-        m = league.getCurrMatch();
-        m.print();
-        league.playCurrMatch();
-        league.printTable();
+        NeuralNetwork nn = new NeuralNetwork(
+            new int[]{6, 40, 3},
+            new ActivationType[]{
+                ActivationType.SIGMOID,
+                ActivationType.SIGMOID
+            },
+            LossType.MSE,
+            0.1
+        );
+        
+        Trainer trainer = new Trainer(nn, league, 0.03);
+        trainer.train(5000);
+        trainer.test();       
     }
 }

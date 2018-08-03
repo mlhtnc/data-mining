@@ -6,7 +6,7 @@ package neuralnetwork;
  */
 public class NeuralNetwork
 {
-    private Layer[] layers;
+    private final Layer[] layers;
     private Matrix target;
     
     double learningRate;
@@ -33,6 +33,21 @@ public class NeuralNetwork
                 layers[i].setInputLayer(layers[i - 1]);
                 layers[i - 1].setOutputLayer(layers[i]);
             }
+        }
+    }
+    
+    public void train(Matrix[] inputs, Matrix[] targets, int epoch)
+    {
+        for(int i = 0; i < epoch; i++)
+        {
+            for(int j = 0; j < inputs.length; j++)
+            {
+                this.setInput(inputs[j]);
+                this.setTarget(targets[j]);
+                this.feedForward();
+                this.backpropagation();
+            }
+            printLog(i);
         }
     }
     
@@ -87,5 +102,11 @@ public class NeuralNetwork
     
     public Matrix getTarget() {
         return target;
+    }
+    
+    private void printLog(int epoch)
+    {
+        System.out.print("Epoch = " + (epoch + 1) + ", ");
+        System.out.println(String.format("Loss = %.10f", this.getLoss()));
     }
 }

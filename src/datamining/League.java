@@ -11,12 +11,14 @@ public class League
     private Match[] matches;
     private Team[]  table;
     
+    private int numberOfMatch;
     private int currMatch = 0;
         
     public League(Match[] matches, Team[] teams)
     {
         this.matches = matches;
         this.table   = teams;
+        this.numberOfMatch = matches.length;
     }
     
     // Plays the current match
@@ -70,6 +72,11 @@ public class League
     {
         return matches[currMatch];
     }
+
+    public int getNumberOfMatch()
+    {
+        return numberOfMatch;
+    }    
     
     private void sortTeams()
     {

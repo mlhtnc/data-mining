@@ -64,8 +64,7 @@ public class NeuralNetworkTest {
             0.05
         );
         
-        Trainer trainer = new Trainer(nn, inputs, targets);
-        trainer.train(12500);
+        nn.train(inputs, targets, 12500);
         
         // Test
         for(int i = 0; i < 4; i++)
@@ -76,7 +75,7 @@ public class NeuralNetworkTest {
             
             assertTrue(Math.abs(targets[i].data[0][0] - nn.getOutput().data[0][0]) < 0.5);
 
-            System.out.print("Output: " + nn.getOutput());
+            System.out.print("\nOutput: " + nn.getOutput());
             System.out.println(String.format("Error: %.10f\n", nn.getLoss()));
         }
     }

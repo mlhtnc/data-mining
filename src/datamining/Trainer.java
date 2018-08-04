@@ -24,10 +24,10 @@ public class Trainer
         this.nn = nn;
         this.league = league;
         
-        initalizeData(testPercentage);
+        initializeData(testPercentage);
     }
     
-    private void initalizeData(double testPercentage)
+    private void initializeData(double testPercentage)
     {
         int sampleCount = league.getNumberOfMatch();
         int testingCount = (int) (sampleCount * testPercentage);

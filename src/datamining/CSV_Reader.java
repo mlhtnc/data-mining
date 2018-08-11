@@ -88,7 +88,7 @@ public class CSV_Reader
         }
         
         Match[] matches = (Match[]) matchList.toArray(new Match[matchList.size()]);
-        Team[] teams    = (Team[])  teamList.toArray(new Team[teamList.size()]);
+        Team[]  teams   = (Team[])  teamList.toArray(new Team[teamList.size()]);
         
         return new League(matches, teams);
     }

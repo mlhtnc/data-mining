@@ -1,6 +1,7 @@
 package datamining;
 
 import java.io.File;
+import java.util.ArrayList;
 import neuralnetwork.ActivationType;
 import neuralnetwork.LossType;
 import neuralnetwork.NeuralNetwork;
@@ -16,17 +17,6 @@ public class DataMining
     //
     // -We only see loss of last output after each epoch. Last output is not
     // informative enough so take avarage loss of all outputs in one epoch.
-    // 
-    // -In the trainer, we need a structure that we can add more league data.
-    // Redesign structure, so we can add more data onto current data after.
-    // Note: Create a league list and when a new league added, initialize data
-    // again.
-    //
-    // -We need to shuffle data according to given test percentage.
-    //
-    // -Get all table information of each input, so it can help us later when
-    // we analyse result. e.g: position, won, lost, draw, pts...
-    
     
     static String dataPath = System.getProperty("user.home") + File.separator +
             "Desktop" + File.separator + "data" + File.separator;
@@ -36,9 +26,10 @@ public class DataMining
     
     public static void main(String[] args)
     {
-        League league_E0 = CSV_Reader.read(E0);
-        League league_T1 = CSV_Reader.read(T1);
-
+        ArrayList<League> leagues = new ArrayList<>();        
+        leagues.add(CSV_Reader.read(E0));
+        //leagues.add(CSV_Reader.read(T1));
+        
         NeuralNetwork nn = new NeuralNetwork(
             new int[]{6, 40, 3},
             new ActivationType[]{
@@ -49,7 +40,8 @@ public class DataMining
             0.05
         );
         
-        Trainer trainer = new Trainer(nn, league_E0, 0.03);
+        League[] leagueArr = leagues.toArray(new League[leagues.size()]);
+        Trainer trainer = new Trainer(nn, leagueArr, 0.1f);
         trainer.train(5000);
         
         trainer.test();       

@@ -9,20 +9,34 @@ import java.util.Arrays;
 public class League
 {
     private Match[] matches;
-    private Team[]  table;
+    private Team[] table;
     
-    private int numberOfMatch;
+    private final int numberOfMatch;
     private int currMatch = 0;
         
     public League(Match[] matches, Team[] teams)
     {
         this.matches = matches;
-        this.table   = teams;
+        this.table = teams;
         this.numberOfMatch = matches.length;
+        
+        sortTeams();
+        extractTableData();
+    }
+    
+    private void extractTableData()
+    {
+        Match[] _matches = new Match[numberOfMatch];
+        for(int i = 0; i < numberOfMatch; i++)
+        {
+            _matches[i] = matches[currMatch].copy();
+            playCurrMatch();
+        }
+        matches = _matches;
     }
     
     // Plays the current match
-    public void playCurrMatch()
+    private void playCurrMatch()
     {
         Match match = matches[currMatch];
         Team home = match.homeTeam;
@@ -63,20 +77,10 @@ public class League
             default:
                 System.out.println("Undefined result");
         }
-  
+        
         sortTeams();
         currMatch++;
     }
-    
-    public Match getCurrMatch()
-    {
-        return matches[currMatch];
-    }
-
-    public int getNumberOfMatch()
-    {
-        return numberOfMatch;
-    }    
     
     private void sortTeams()
     {
@@ -107,5 +111,15 @@ public class League
             System.out.print(t.toString());
         
         System.out.println();
+    }
+    
+    public Match[] getMatches()
+    {
+        return matches;
+    }
+    
+    public int getMatchCount()
+    {
+        return matches.length;
     }
 }

@@ -30,6 +30,20 @@ public class Match
     // Half Time Result
     public char HTR;
     
+    public Match copy()
+    {
+        Match copy = new Match();
+        copy.homeTeam = this.homeTeam.copy();
+        copy.awayTeam = this.awayTeam.copy();
+        copy.FTHG = this.FTHG;
+        copy.FTAG = this.FTAG;
+        copy.FTR  = this.FTR;
+        copy.HTHG = this.HTHG;
+        copy.HTAG = this.HTAG;
+        copy.HTR  = this.HTR;
+        return copy;
+    }
+    
     public void print()
     {
         System.out.println(toString());
@@ -45,6 +59,30 @@ public class Match
             FTAG,
             awayTeam.name
         );
+        
+        ret += String.format(
+            "%10s\t%11s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\n",
+            "Team",
+            "Played",
+            "Won",
+            "Draw",
+            "Lost",
+            "GF",
+            "GA",
+            "GD",
+            "Pts"
+        );
+        
+        if(homeTeam.compareTo(awayTeam) < 0)
+        {
+            ret += homeTeam.toString();
+            ret += awayTeam.toString();
+        }
+        else
+        {
+            ret += awayTeam.toString();
+            ret += homeTeam.toString();
+        }
         
         return ret;
     }

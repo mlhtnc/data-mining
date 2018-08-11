@@ -33,6 +33,21 @@ public class Team implements Comparable<Team>
         this.name = name;
         this.id = id;
     }
+    
+    public Team copy()
+    {
+        Team copy = new Team(this.name, this.id);
+        copy.position = this.position;
+        copy.played = this.played;
+        copy.won = this.won;
+        copy.draw = this.draw;
+        copy.lost = this.lost;
+        copy.GF = this.GF;
+        copy.GA = this.GA;
+        copy.GD = this.GD;
+        copy.pts = this.pts;
+        return copy;
+    }
 
     @Override
     public int compareTo(Team other)
@@ -49,8 +64,10 @@ public class Team implements Comparable<Team>
             return -1;
         else if(this.GF < other.GF)
             return 1;
+        else if(this.name.compareTo(other.name) < 0)
+            return -1;
         else
-            return 0;
+            return 1;
     }
     
     @Override

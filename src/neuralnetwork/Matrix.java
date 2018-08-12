@@ -334,6 +334,22 @@ public class Matrix
     }
     
     /**
+     * This method only works for one dimensional matrices. e.g: 10x1, 20x1
+     * @return Returns index of max row.
+     */
+    public int getMaxRow()
+    {
+        int maxIdx = 0;
+        for(int i = 1; i < this.rows; i++)
+        {
+            if(this.data[i][0] > this.data[maxIdx][0])
+                maxIdx = i;
+        }
+        
+        return maxIdx;
+    }
+    
+    /**
     * Matrix Multiplication O(n^3)
     * @param m1
     * @param m2

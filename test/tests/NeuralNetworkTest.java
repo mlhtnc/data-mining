@@ -64,8 +64,22 @@ public class NeuralNetworkTest {
             0.05
         );
         
-        nn.train(inputs, targets, 12500);
-        
+        for(int i = 0; i < 12500; i++)
+        {
+            double avarageLoss = 0.0;
+            for(int j = 0; j < inputs.length; j++)
+            {
+                nn.setInput(inputs[j]);
+                nn.setTarget(targets[j]);
+                nn.feedForward();
+                nn.backpropagation();
+                avarageLoss += nn.getLoss();
+            }
+            
+            String out = String.format("Epoch: %d, Loss: %.10f", (i + 1), avarageLoss);
+            System.out.println(out);
+        }
+                
         // Test
         for(int i = 0; i < 4; i++)
         {

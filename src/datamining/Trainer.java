@@ -12,7 +12,7 @@ import neuralnetwork.NeuralNetwork;
 public class Trainer
 {
     private final NeuralNetwork nn;
-    private League[] leagues;
+    private final League[] leagues;
     private Match[] allMatches;
     private Match[] testingMatches;
     
@@ -23,8 +23,8 @@ public class Trainer
     private Matrix[] testingInputs;
     private Matrix[] testingTargets;
     
-    private float testPercentage;
-    private int sampleCount;
+    private final float testPercentage;
+    private final int sampleCount;
     
     public Trainer(NeuralNetwork nn, League[] leagues, float testPercentage)
     {
@@ -110,20 +110,20 @@ public class Trainer
     
     public void train(int epoch)
     {
-        nn.train(trainingInputs, trainingTargets, epoch);
+        nn.train(trainingInputs, trainingTargets,
+                testingInputs, testingTargets, epoch);
     }
     
     public void test()
     {
-        System.out.println();
         for(int i = 0; i < testingInputs.length; i++)
         {
-            System.out.println("Test#" + (i + 1));
-            testingMatches[i].print();
-            
             nn.setInput(testingInputs[i]);
+            nn.setTarget(testingTargets[i]);
             nn.feedForward();
 
+            System.out.println("\nTest#" + (i + 1));
+            testingMatches[i].print();
             System.out.print(testingTargets[i]);
             System.out.println(nn.getOutput());
         }  

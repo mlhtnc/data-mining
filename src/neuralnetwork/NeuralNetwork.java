@@ -36,18 +36,34 @@ public class NeuralNetwork
         }
     }
     
-    public void train(Matrix[] inputs, Matrix[] targets, int epoch)
+    public void train(Matrix[] trainingInputs, Matrix[] trainingTargets,
+            Matrix[] testingInputs, Matrix[] testingTargets, int epoch)
     {
         for(int i = 0; i < epoch; i++)
         {
-            for(int j = 0; j < inputs.length; j++)
+            double avarageLoss = 0.0;
+            for(int j = 0; j < trainingInputs.length; j++)
             {
-                this.setInput(inputs[j]);
-                this.setTarget(targets[j]);
+                this.setInput(trainingInputs[j]);
+                this.setTarget(trainingTargets[j]);
                 this.feedForward();
                 this.backpropagation();
+                avarageLoss += loss;
             }
-            printLog(i);
+            
+            int correct = 0;
+            for(int j = 0; j < testingInputs.length; j++)
+            {
+                this.setInput(testingInputs[j]);
+                this.setTarget(testingTargets[j]);
+                this.feedForward();
+                
+                if(testingTargets[j].getMaxRow() == getOutput().getMaxRow())
+                    correct++;
+            }
+            
+            avarageLoss /= trainingInputs.length;
+            printLog(i, avarageLoss, correct, testingInputs.length);
         }
     }
     
@@ -82,6 +98,16 @@ public class NeuralNetwork
         }
     }
     
+    private void printLog(int epoch, double avarageLoss, int correct, int total)
+    {
+        String epochStr = String.format("Epoch: %d, ", epoch + 1);
+        String lossStr  = String.format("Loss = %.10f, ", avarageLoss);
+        String accuracyStr = String.format("Accuracy: %.0f%% (%d/%d)",
+                (((double) correct) / total) * 100.0, correct, total);
+        
+        System.out.println(epochStr + lossStr + accuracyStr);
+    }
+    
     public void setInput(Matrix input) {
         layers[0].setInput(new Matrix(input));
     }
@@ -102,11 +128,5 @@ public class NeuralNetwork
     
     public Matrix getTarget() {
         return target;
-    }
-    
-    private void printLog(int epoch)
-    {
-        System.out.print("Epoch = " + (epoch + 1) + ", ");
-        System.out.println(String.format("Loss = %.10f", this.getLoss()));
     }
 }

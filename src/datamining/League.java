@@ -9,7 +9,7 @@ import java.util.Arrays;
 public class League
 {
     private Match[] matches;
-    private final Team[] table;
+    private final Team[] teams;
     
     private final int numberOfMatch;
     private int currMatch = 0;
@@ -27,7 +27,7 @@ public class League
     public League(Match[] matches, Team[] teams)
     {
         this.matches = matches;
-        this.table = teams;
+        this.teams = teams;
         this.numberOfMatch = matches.length;
 
         calcMinMaxOdds();        
@@ -142,7 +142,7 @@ public class League
             )
         );
         
-        for(Team t : table)
+        for(Team t : teams)
             System.out.print(t.toString());
         
         System.out.println();
@@ -150,15 +150,20 @@ public class League
     
     private void sortTeams()
     {
-        Arrays.sort(table);
+        Arrays.sort(teams);
         
-        for(int i = 0; i < table.length; i++)
-            table[i].position = i + 1;
+        for(int i = 0; i < teams.length; i++)
+            teams[i].position = i + 1;
     }
     
     public Match[] getMatches()
     {
         return matches;
+    }
+    
+    public Team[] getTeams()
+    {
+        return teams;
     }
     
     public int getMatchCount()

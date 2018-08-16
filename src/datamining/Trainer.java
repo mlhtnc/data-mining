@@ -12,7 +12,7 @@ import neuralnetwork.NeuralNetwork;
 public class Trainer
 {
     private final NeuralNetwork nn;
-    private final League[] leagues;
+    private final League league;
     private Match[] allMatches;
     private Match[] testingMatches;
     
@@ -23,88 +23,129 @@ public class Trainer
     private Matrix[] testingInputs;
     private Matrix[] testingTargets;
     
-    private final float testPercentage;
     private final int sampleCount;
     
-    public Trainer(NeuralNetwork nn, League[] leagues, float testPercentage)
+    public Trainer(NeuralNetwork nn, League league,
+            float testPercentage, boolean shuffle)
     {
         this.nn = nn;
-        this.leagues = leagues;
-        this.testPercentage = testPercentage;
-        this.sampleCount = calcSampleCount();
+        this.league = league;
+        this.sampleCount = league.getMatchCount();
         
-        extractData();
-        initializeData();
+        extractFeatures();
+        initialize(shuffle, testPercentage);
     }
     
-    private void extractData()
-    {        
+    /**
+     * Features:
+     * 1. Goal differences of home team
+     * 2. The percentage of winning of home team
+     * 3. The percentage of draw of home team
+     * 4. The percentage of lose of home team
+     * 5. The percentage of winning when home team was home
+     * 6. The percentage of draw when home team was home
+     * 7. The percentage of lose when home team was home
+     * 8. Goal differences of away team
+     * 9. The percentage of winning of away team
+     * 10. The percentage of draw of away team
+     * 11. The percentage of lose of away team
+     * 12. The percentage of winning when away team was away
+     * 13. The percentage of draw when away team was away
+     * 14. The percentage of lose when away team was away
+     * 15. B365H = Bet365 home win odds
+     * 16. B365D = Bet365 draw odds
+     * 17. B365A = Bet365 away win odds 
+     */
+    private void extractFeatures()
+    {
+        Match[] matches = league.getMatches();
+        int idx = 0;
+        
         allMatches = new Match[sampleCount];
         inputs = new Matrix[sampleCount];
         targets = new Matrix[sampleCount];
         
-        int idx = 0;
-        for(int i = 0; i < leagues.length; i++)
+        for(int i = 0; i < sampleCount; i++)
         {
-            Match[] matches = leagues[i].getMatches();
-            for(int j = 0; j < matches.length; j++)
-            {
-                Match m = matches[j];
-                allMatches[idx] = m;
-                
-                inputs[idx] = new Matrix(6, 1);
-                inputs[idx].data[0][0] = (m.homeTeam.played == 0) ? m.homeTeam.played : (double) m.homeTeam.won / m.homeTeam.played;
-                inputs[idx].data[1][0] = (m.homeTeam.played == 0) ? m.homeTeam.played : (double) m.homeTeam.draw / m.homeTeam.played;
-                inputs[idx].data[2][0] = (m.homeTeam.played == 0) ? m.homeTeam.played : (double) m.homeTeam.lost / m.homeTeam.played;
-                inputs[idx].data[3][0] = (m.awayTeam.played == 0) ? m.awayTeam.played : (double) m.awayTeam.won / m.awayTeam.played;
-                inputs[idx].data[4][0] = (m.awayTeam.played == 0) ? m.awayTeam.played : (double) m.awayTeam.draw / m.awayTeam.played;
-                inputs[idx].data[5][0] = (m.awayTeam.played == 0) ? m.awayTeam.played : (double) m.awayTeam.lost / m.awayTeam.played;
-                        
-                targets[idx] = new Matrix(3, 1);
-                targets[idx].data[0][0] = (m.FTR == 'H') ? 1.0 : 0.0;
-                targets[idx].data[1][0] = (m.FTR == 'D') ? 1.0 : 0.0;
-                targets[idx].data[2][0] = (m.FTR == 'A') ? 1.0 : 0.0;
-                
-                idx++;
-            }
+            Match m = matches[i];
+            allMatches[idx] = m;
+
+            inputs[idx] = new Matrix(17, 1);
+            
+            // Home team features
+            inputs[idx].data[0][0] = normalize(league.minGD, league.maxGD, m.homeTeam.GD);
+            inputs[idx].data[1][0] = m.homeTeam.getPercentageOfWin();
+            inputs[idx].data[2][0] = m.homeTeam.getPercentageOfDraw();
+            inputs[idx].data[3][0] = m.homeTeam.getPercentageOfLose();
+            inputs[idx].data[4][0] = m.homeTeam.getPercentageOfHomeWin();
+            inputs[idx].data[5][0] = m.homeTeam.getPercentageOfHomeDraw();
+            inputs[idx].data[6][0] = m.homeTeam.getPercentageOfHomeLose();
+            
+            // Away team features
+            inputs[idx].data[7][0] = normalize(league.minGD, league.maxGD, m.awayTeam.GD);
+            inputs[idx].data[8][0] = m.awayTeam.getPercentageOfWin();
+            inputs[idx].data[9][0] = m.awayTeam.getPercentageOfDraw();
+            inputs[idx].data[10][0] = m.awayTeam.getPercentageOfLose();
+            inputs[idx].data[11][0] = m.awayTeam.getPercentageOfAwayWin();
+            inputs[idx].data[12][0] = m.awayTeam.getPercentageOfAwayDraw();
+            inputs[idx].data[13][0] = m.awayTeam.getPercentageOfAwayLose();
+            
+            // Bet365 odds
+            inputs[idx].data[14][0] = normalize(league.minB365H, league.maxB365H, m.B365H);
+            inputs[idx].data[15][0] = normalize(league.minB365D, league.maxB365D, m.B365D);
+            inputs[idx].data[16][0] = normalize(league.minB365A, league.maxB365A, m.B365A);
+
+            // Targets: Full Time Result
+            targets[idx] = new Matrix(3, 1);
+            targets[idx].data[0][0] = (m.FTR == 'H') ? 1.0 : 0.0;
+            targets[idx].data[1][0] = (m.FTR == 'D') ? 1.0 : 0.0;
+            targets[idx].data[2][0] = (m.FTR == 'A') ? 1.0 : 0.0;
+
+            idx++;
         }
     }
     
-    private void initializeData()
+    private void initialize(boolean shuffle, float testPercentage)
     {
+        ArrayList<Integer> matchIndexes;
+        Random rnd;
+        
         int testingCount = (int) (sampleCount * testPercentage);
         int trainingCount = sampleCount - testingCount;
-        
         trainingInputs = new Matrix[trainingCount];
         trainingTargets = new Matrix[trainingCount];
         testingInputs = new Matrix[testingCount];
         testingTargets = new Matrix[testingCount];
         testingMatches = new Match[testingCount];
         
-        Random rnd = new Random();
-        ArrayList<Integer> matchIndexes = new ArrayList<>();
-        for(int i = 0; i < sampleCount; i++)
+        rnd = new Random();
+        matchIndexes = new ArrayList<>();
+        for(int i = 0; i < trainingCount; i++)
             matchIndexes.add(i);
         
         for(int i = 0; i < trainingCount; i++)
         {
-            int rndMatchIdx = Math.abs(rnd.nextInt()) % matchIndexes.size();
-            int idx = matchIndexes.get(rndMatchIdx);
-            matchIndexes.remove(rndMatchIdx);
-            
-            trainingInputs[i] = inputs[idx];
-            trainingTargets[i] = targets[idx];
+            if(shuffle == true)
+            {
+                int rndMatchIdx = Math.abs(rnd.nextInt()) % matchIndexes.size();
+                int idx = matchIndexes.get(rndMatchIdx);
+                matchIndexes.remove(rndMatchIdx);
+
+                trainingInputs[i] = inputs[idx];
+                trainingTargets[i] = targets[idx];
+            }
+            else
+            {
+                trainingInputs[i] = inputs[i];
+                trainingTargets[i] = targets[i];
+            }
         }
         
-        for(int i = 0; i < testingCount; i++)
-        {
-            int rndMatchIdx = Math.abs(rnd.nextInt()) % matchIndexes.size();
-            int idx = matchIndexes.get(rndMatchIdx);
-            matchIndexes.remove(rndMatchIdx);
-            
-            testingInputs[i] = inputs[idx];
-            testingTargets[i] = targets[idx];
-            testingMatches[i] = allMatches[idx];
+        for(int i = trainingCount; i < sampleCount; i++)
+        {   
+            testingInputs[i - trainingCount]  = inputs[i];
+            testingTargets[i - trainingCount] = targets[i];
+            testingMatches[i - trainingCount] = allMatches[i];
         }
     }
     
@@ -129,13 +170,8 @@ public class Trainer
         }  
     }
     
-    private int calcSampleCount()
+    public static double normalize(double oldMin, double oldMax, double value)
     {
-        int sum = 0;
-        for(int i = 0; i < leagues.length; i++)
-        {
-            sum += leagues[i].getMatchCount();
-        }
-        return sum;
+        return ((value - oldMin) / (oldMax - oldMin)) * (1.0 - (-1.0)) + (-1.0);
     }
 }

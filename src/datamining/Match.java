@@ -30,6 +30,15 @@ public class Match
     // Half Time Result
     public char HTR;
     
+    // Bet365 home win odds
+    public double B365H;
+    
+    // Bet365 draw odds
+    public double B365D;
+    
+    // Bet365 away win odds
+    public double B365A;
+    
     public Match copy()
     {
         Match copy = new Match();
@@ -41,6 +50,9 @@ public class Match
         copy.HTHG = this.HTHG;
         copy.HTAG = this.HTAG;
         copy.HTR  = this.HTR;
+        copy.B365H = this.B365H;
+        copy.B365D = this.B365D;
+        copy.B365A = this.B365A;
         return copy;
     }
     
@@ -64,9 +76,9 @@ public class Match
             "%10s\t%11s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\n",
             "Team",
             "Played",
-            "Won",
+            "Win",
             "Draw",
-            "Lost",
+            "Lose",
             "GF",
             "GA",
             "GD",
@@ -83,6 +95,22 @@ public class Match
             ret += awayTeam.toString();
             ret += homeTeam.toString();
         }
+        
+        ret += "\nHome Team:\n";
+        ret += String.format("Win Percentage:\t\t%.0f%%\n", homeTeam.getPercentageOfWin() * 100.0);
+        ret += String.format("Draw Percentage:\t%.0f%%\n", homeTeam.getPercentageOfDraw() * 100.0);
+        ret += String.format("Lose Percentage:\t%.0f%%\n", homeTeam.getPercentageOfLose() * 100.0);
+        ret += String.format("Home Win Percentage:\t%.0f%%\n", homeTeam.getPercentageOfHomeWin() * 100.0);
+        ret += String.format("Home Draw Percentage:\t%.0f%%\n", homeTeam.getPercentageOfHomeDraw() * 100.0);
+        ret += String.format("Home Lose Percentage:\t%.0f%%\n", homeTeam.getPercentageOfHomeLose() * 100.0);
+        
+        ret += "\nAway Team:\n";
+        ret += String.format("Win Percentage:\t\t%.0f%%\n", awayTeam.getPercentageOfWin() * 100.0);
+        ret += String.format("Draw Percentage:\t%.0f%%\n", awayTeam.getPercentageOfDraw() * 100.0);
+        ret += String.format("Lose Percentage:\t%.0f%%\n", awayTeam.getPercentageOfLose() * 100.0);
+        ret += String.format("Away Win Percentage:\t%.0f%%\n", awayTeam.getPercentageOfAwayWin() * 100.0);
+        ret += String.format("Away Draw Percentage:\t%.0f%%\n", awayTeam.getPercentageOfAwayDraw() * 100.0);
+        ret += String.format("Away Lose Percentage:\t%.0f%%\n", awayTeam.getPercentageOfAwayLose() * 100.0);
         
         return ret;
     }

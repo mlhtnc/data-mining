@@ -1,7 +1,6 @@
 package datamining;
 
 import java.io.File;
-import java.util.ArrayList;
 import neuralnetwork.ActivationType;
 import neuralnetwork.LossType;
 import neuralnetwork.NeuralNetwork;
@@ -12,24 +11,28 @@ import neuralnetwork.NeuralNetwork;
  */
 public class DataMining
 {   
+    // TODO:
+    // -Make a user interface for predicting matches.
+    //
+    // -Softmax classifier
+    
+    
+    // Data Path
     static final String DATA_PATH = System.getProperty("user.home") + File.separator +
             "Desktop" + File.separator + "data" + File.separator;
     
-    static final String _17_18 = DATA_PATH + "17-18" + File.separator + "E0.csv";
-    static final String _16_17 = DATA_PATH + "16-17" + File.separator + "E0.csv";
-    static final String _15_16 = DATA_PATH + "15-16" + File.separator + "E0.csv";
-
+    // League Paths
+    static final String PL_PATH = DATA_PATH + "pl" + File.separator;
+    static final String TSL_PATH = DATA_PATH + "tsl" + File.separator;
     
     public static void main(String[] args)
     {
-        ArrayList<League> leagues = new ArrayList<>();        
-        leagues.add(CSV_Reader.read(_17_18));
-        leagues.add(CSV_Reader.read(_16_17));
-        leagues.add(CSV_Reader.read(_15_16));
-        
+        League pl = CSV_Reader.read(PL_PATH);
+
         NeuralNetwork nn = new NeuralNetwork(
-            new int[]{6, 40, 3},
+            new int[]{17, 13, 24, 3},
             new ActivationType[]{
+                ActivationType.SIGMOID,
                 ActivationType.SIGMOID,
                 ActivationType.SIGMOID
             },
@@ -37,9 +40,8 @@ public class DataMining
             0.05
         );
         
-        League[] leagueArr = leagues.toArray(new League[leagues.size()]);
-        Trainer trainer = new Trainer(nn, leagueArr, 0.1f);
-        trainer.train(5000);      
-        trainer.test();       
+        Trainer trainer = new Trainer(nn, pl, 0.01f, true);
+        trainer.train(500);      
+        trainer.test();     
     }
 }

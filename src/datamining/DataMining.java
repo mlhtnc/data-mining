@@ -15,10 +15,12 @@ import neuralnetwork.NeuralNetwork;
 public class DataMining
 {   
     // TODO:
-    // -Make a user interface for predicting matches.
+    // -Softmax classifier and cross entropy
     //
-    // -Softmax classifier
-    
+    // FIXME:
+    // If data has empty columns it causes bugs.
+    // Indexes shift left and we don't get right column.
+    // Don't use String.split, write your version.
     
     // Data Path
     static final String DATA_PATH = System.getProperty("user.home") + File.separator +
@@ -26,9 +28,12 @@ public class DataMining
     
     // League Paths
     static final String PL_PATH = DATA_PATH + "pl" + File.separator;
+    static final String SA_PATH = DATA_PATH + "sa" + File.separator;
     static final String TSL_PATH = DATA_PATH + "tsl" + File.separator;
+    static final String LLPD_PATH = DATA_PATH + "llpd" + File.separator;
+
     
-    League pl = CSV_Reader.read(PL_PATH);
+    League lg = CSV_Reader.read(LLPD_PATH);
     NeuralNetwork nn;
     Trainer trainer;
     
@@ -36,13 +41,13 @@ public class DataMining
     {
         DataMining dt = new DataMining();
         dt.train();
-        dt.test();
+        
+        while(true)
+            dt.test();
     }
     
     public void train()
     {
-        pl = CSV_Reader.read(PL_PATH);
-
         nn = new NeuralNetwork(
             new int[]{17, 13, 24, 3},
             new ActivationType[]{
@@ -54,16 +59,15 @@ public class DataMining
             0.05
         );
         
-        trainer = new Trainer(nn, pl, 0.01f, true);
-        trainer.train(500);      
+        trainer = new Trainer(nn, lg, 0.1f, true);
+        trainer.train(30);      
         trainer.test();
     }
     
     public void test()
     {
         Scanner sc = new Scanner(System.in);
-        pl = CSV_Reader.read(PL_PATH);
-        Team[] teams = pl.getTeams();
+        Team[] teams = lg.getTeams();
         
         for(int i = 0; i < teams.length; i++)
             System.out.println(String.format("%-15s -> %d", teams[i].name, i));
@@ -83,7 +87,7 @@ public class DataMining
         inputs = new Matrix(17, 1);
             
         // Home team features
-        inputs.data[0][0] = normalize(pl.minGD, pl.maxGD, homeTeam.GD);
+        inputs.data[0][0] = normalize(lg.minGD, lg.maxGD, homeTeam.GD);
         inputs.data[1][0] = homeTeam.getPercentageOfWin();
         inputs.data[2][0] = homeTeam.getPercentageOfDraw();
         inputs.data[3][0] = homeTeam.getPercentageOfLose();
@@ -92,7 +96,7 @@ public class DataMining
         inputs.data[6][0] = homeTeam.getPercentageOfHomeLose();
 
         // Away team features
-        inputs.data[7][0] = normalize(pl.minGD, pl.maxGD, awayTeam.GD);
+        inputs.data[7][0] = normalize(lg.minGD, lg.maxGD, awayTeam.GD);
         inputs.data[8][0] = awayTeam.getPercentageOfWin();
         inputs.data[9][0] = awayTeam.getPercentageOfDraw();
         inputs.data[10][0] = awayTeam.getPercentageOfLose();
@@ -101,13 +105,14 @@ public class DataMining
         inputs.data[13][0] = awayTeam.getPercentageOfAwayLose();
 
         // Bet365 odds
-        inputs.data[14][0] = normalize(pl.minB365H, pl.maxB365H, B365H);
-        inputs.data[15][0] = normalize(pl.minB365D, pl.maxB365D, B365D);
-        inputs.data[16][0] = normalize(pl.minB365A, pl.maxB365A, B365A);
+        inputs.data[14][0] = normalize(lg.minB365H, lg.maxB365H, B365H);
+        inputs.data[15][0] = normalize(lg.minB365D, lg.maxB365D, B365D);
+        inputs.data[16][0] = normalize(lg.minB365A, lg.maxB365A, B365A);
         
         nn.setInput(inputs);
         nn.feedForward();
         
+        System.out.println(homeTeam.name + " - " + awayTeam.name);
         System.out.println(nn.getOutput());
     }
 }

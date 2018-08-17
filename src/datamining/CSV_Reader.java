@@ -74,9 +74,7 @@ public class CSV_Reader
                         match.B365D     = Double.parseDouble(splitted[map.get("B365D")]);
                         match.B365A     = Double.parseDouble(splitted[map.get("B365A")]);
                     }
-                    
-                    
-                    
+
                     // If team doesn't exist, create a new team.
                     if(teamNameMap.containsKey(homeTeam) == false)
                     {

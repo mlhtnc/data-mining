@@ -1,11 +1,8 @@
 package datamining;
 
-import static datamining.Trainer.normalize;
 import java.util.Scanner;
 import java.io.File;
-import neuralnetwork.ActivationFunc;
 import neuralnetwork.ActivationType;
-import neuralnetwork.LossFunction;
 import neuralnetwork.LossType;
 import neuralnetwork.Matrix;
 import neuralnetwork.NeuralNetwork;
@@ -15,15 +12,7 @@ import neuralnetwork.NeuralNetwork;
  * @author tnc
  */
 public class DataMining
-{   
-    // TODO:
-    // -Softmax classifier and cross entropy
-    //
-    // FIXME:
-    // If data has empty columns it causes bugs.
-    // Indexes shift left and we don't get right column.
-    // Don't use String.split, write your version.
-    
+{       
     // Data Path
     static final String DATA_PATH = System.getProperty("user.home") + File.separator +
             "Desktop" + File.separator + "data" + File.separator;
@@ -35,7 +24,7 @@ public class DataMining
     static final String LLPD_PATH = DATA_PATH + "llpd" + File.separator;
 
     
-    League lg = CSV_Reader.read(LLPD_PATH);
+    League lg = CSV_Reader.read(SA_PATH);
     NeuralNetwork nn;
     Trainer trainer;
     
@@ -89,7 +78,7 @@ public class DataMining
         inputs = new Matrix(17, 1);
             
         // Home team features
-        inputs.data[0][0] = normalize(lg.minGD, lg.maxGD, homeTeam.GD);
+        inputs.data[0][0] = Trainer.normalize(lg.minGD, lg.maxGD, homeTeam.GD);
         inputs.data[1][0] = homeTeam.getPercentageOfWin();
         inputs.data[2][0] = homeTeam.getPercentageOfDraw();
         inputs.data[3][0] = homeTeam.getPercentageOfLose();
@@ -98,7 +87,7 @@ public class DataMining
         inputs.data[6][0] = homeTeam.getPercentageOfHomeLose();
 
         // Away team features
-        inputs.data[7][0] = normalize(lg.minGD, lg.maxGD, awayTeam.GD);
+        inputs.data[7][0] = Trainer.normalize(lg.minGD, lg.maxGD, awayTeam.GD);
         inputs.data[8][0] = awayTeam.getPercentageOfWin();
         inputs.data[9][0] = awayTeam.getPercentageOfDraw();
         inputs.data[10][0] = awayTeam.getPercentageOfLose();
@@ -107,9 +96,9 @@ public class DataMining
         inputs.data[13][0] = awayTeam.getPercentageOfAwayLose();
 
         // Bet365 odds
-        inputs.data[14][0] = normalize(lg.minB365H, lg.maxB365H, B365H);
-        inputs.data[15][0] = normalize(lg.minB365D, lg.maxB365D, B365D);
-        inputs.data[16][0] = normalize(lg.minB365A, lg.maxB365A, B365A);
+        inputs.data[14][0] = Trainer.normalize(lg.minB365H, lg.maxB365H, B365H);
+        inputs.data[15][0] = Trainer.normalize(lg.minB365D, lg.maxB365D, B365D);
+        inputs.data[16][0] = Trainer.normalize(lg.minB365A, lg.maxB365A, B365A);
         
         nn.setInput(inputs);
         nn.feedForward();

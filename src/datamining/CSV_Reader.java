@@ -37,18 +37,14 @@ public class CSV_Reader
                 br = new BufferedReader(fr);
 
                 String line = br.readLine();
-                String[] splitted = line.split(",");
+                String[] splitted = split(line, ",");
 
                 for(int i = 0; i < splitted.length; i++)
                     map.put(splitted[i], i);
 
                 while ((line = br.readLine()) != null)
                 {
-                    splitted = line.split(",");
-                    
-                    // If data is empty just pass it.
-                    if(splitted.length == 0)
-                        continue;
+                    splitted = split(line, ",");
 
                     Match match = new Match();
                     String homeTeam = splitted[map.get("HomeTeam")];
@@ -111,12 +107,29 @@ public class CSV_Reader
                 }
             } catch (IOException e) {
             }
-        }
-        
+        }   
         
         Match[] matches = (Match[]) matchList.toArray(new Match[matchList.size()]);
         Team[]  teams   = (Team[])  teamList.toArray(new Team[teamList.size()]);
         
         return new League(matches, teams);
+    }
+    
+    private static String[] split(String s, String del)
+    {
+        LinkedList<String> list = new LinkedList<>();
+        int start = 0, end;
+        
+        while(start < s.length())
+        {
+            end = s.indexOf(del, start);            
+            if(end == -1)
+                end = s.length();
+            
+            list.add(s.substring(start, end));
+            start = end + 1;
+        }
+        
+        return list.toArray(new String[list.size()]);
     }
 }

@@ -11,16 +11,23 @@ public class LossFunction
         Matrix diff = Matrix.sub(target, output);
         Matrix errorMatrix = Matrix.mult(diff, diff);
         errorMatrix = Matrix.div(errorMatrix, 2.0);
-        
-        double error = 0.0;
-        for(int i = 0; i < errorMatrix.rows; i++)
-            error += errorMatrix.data[i][0];
-        
-        return error;
+        return errorMatrix.sum();
     }
     
     public static Matrix derMse(Matrix output, Matrix target)
     {
         return Matrix.sub(output, target);
+    }
+    
+    public static double crossEntropy(Matrix output, Matrix target)
+    {
+        Matrix crossEntropy = Matrix.mult(target, Matrix.log(output));
+        return -crossEntropy.sum();
+    }
+    
+    public static Matrix derCrossEntropy(Matrix output, Matrix target)
+    {
+        Matrix derCrossEntropy = Matrix.div(target, output);
+        return Matrix.negative(derCrossEntropy);
     }
 }

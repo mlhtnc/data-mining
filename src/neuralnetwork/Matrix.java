@@ -268,7 +268,7 @@ public class Matrix
 
         return exp;
     }
-
+    
     public static Matrix log(Matrix m)
     {
         Matrix log = new Matrix(m.rows, m.cols);
@@ -277,7 +277,10 @@ public class Matrix
         {
             for (int j = 0; j < log.cols; j++)
             {
-                log.data[i][j] = Math.log(m.data[i][j]);
+                if(m.data[i][j] == 0.0)
+                    log.data[i][j] = Math.log(0.0000000001);
+                else
+                    log.data[i][j] = Math.log(m.data[i][j]);
             }
         }
 
@@ -331,6 +334,36 @@ public class Matrix
         }
         
         return mapped;
+    }
+    
+    public double sum()
+    {
+        double sum = 0.0;
+        for(int i = 0; i < this.rows; ++i)
+        {
+            for(int j = 0; j < this.cols; ++j)
+            {
+                sum += this.data[i][j];
+            }
+        }
+        return sum;
+    }
+    
+    /**
+     * Gets maximum element of this matrix.
+     * @return Maximum element.
+     */
+    public double getMaxElement()
+    {
+        double max = Double.NEGATIVE_INFINITY;
+        for(int i = 0; i < this.rows; ++i)
+        {
+            for(int j = 0; j < this.cols; ++j)
+            {
+                max = Math.max(max, this.data[i][j]);
+            }
+        }
+        return max;
     }
     
     /**

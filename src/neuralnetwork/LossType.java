@@ -7,5 +7,6 @@ package neuralnetwork;
  */
 public enum LossType
 {
-    MSE            // Mean Squared Error
+    MSE,    // Mean Squared Error
+    CROSS_ENTROPY
 }

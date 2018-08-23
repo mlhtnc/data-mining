@@ -3,7 +3,9 @@ package datamining;
 import static datamining.Trainer.normalize;
 import java.util.Scanner;
 import java.io.File;
+import neuralnetwork.ActivationFunc;
 import neuralnetwork.ActivationType;
+import neuralnetwork.LossFunction;
 import neuralnetwork.LossType;
 import neuralnetwork.Matrix;
 import neuralnetwork.NeuralNetwork;
@@ -38,7 +40,7 @@ public class DataMining
     Trainer trainer;
     
     public static void main(String[] args)
-    {
+    {        
         DataMining dt = new DataMining();
         dt.train();
         
@@ -49,18 +51,18 @@ public class DataMining
     public void train()
     {
         nn = new NeuralNetwork(
-            new int[]{17, 13, 24, 3},
+            new int[]{17, 17, 14, 3},
             new ActivationType[]{
                 ActivationType.SIGMOID,
                 ActivationType.SIGMOID,
-                ActivationType.SIGMOID
+                ActivationType.SOFTMAX
             },
-            LossType.MSE,
-            0.05
+            LossType.CROSS_ENTROPY,
+            0.0005
         );
         
         trainer = new Trainer(nn, lg, 0.1f, true);
-        trainer.train(30);      
+        trainer.train(3000);      
         trainer.test();
     }
     

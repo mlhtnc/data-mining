@@ -8,5 +8,6 @@ package neuralnetwork;
 public enum ActivationType
 {
     SIGMOID,
-    TANH
+    TANH,
+    SOFTMAX
 }

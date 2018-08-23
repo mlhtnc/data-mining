@@ -69,6 +69,8 @@ public class Layer
                 return ActivationFunc.sigmoid(input);
             case TANH:
                 return ActivationFunc.tanh(input);
+            case SOFTMAX:
+                return ActivationFunc.softmax(input);
             default:
                 System.err.println("Error: Undefined Activation Type");
                 return null;
@@ -85,6 +87,12 @@ public class Layer
             if(network.lossType == LossType.MSE)
             {
                 output_d_E = LossFunction.derMse(output, network.getTarget());
+            }
+            // NOTE: Softmax only works with cross entropy and vice versa.
+            else if(network.lossType == LossType.CROSS_ENTROPY &&
+                    activationType == ActivationType.SOFTMAX)
+            {
+                return Matrix.sub(output, network.getTarget());
             }
             else
             {

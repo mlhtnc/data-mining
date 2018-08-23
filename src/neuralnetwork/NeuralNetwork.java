@@ -91,6 +91,10 @@ public class NeuralNetwork
         {
             loss = LossFunction.mse(output, target);
         }
+        else if(lossType == LossType.CROSS_ENTROPY)
+        {
+            loss = LossFunction.crossEntropy(output, target);
+        }
         else
         {
             System.err.println("Error: Undefined loss type, cannot calculate loss.");

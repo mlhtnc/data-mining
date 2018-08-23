@@ -28,6 +28,13 @@ public class ActivationFunc
         return 1.0 - (x * x);
     }
     
+    private static double softmax(double x, double sum)
+    {
+        return x / sum;
+    }
+    
+    
+    
     
     // Public Methods
     
@@ -49,5 +56,33 @@ public class ActivationFunc
     public static Matrix derTanh(Matrix tanh)
     {
         return Matrix.map(tanh, ActivationFunc::derTanh);
+    }
+    
+    public static Matrix softmax(Matrix m)
+    {
+        double max = m.getMaxElement();
+        Matrix exps = Matrix.exp(Matrix.sub(m, max));
+        double sum = exps.sum();
+        
+        Matrix softmax = new Matrix(m.rows, m.cols);
+        for(int i = 0; i < m.rows; i++) {
+            softmax.data[i][0] = softmax(exps.data[i][0], sum);
+        }
+        
+        return softmax;
+    }
+    
+    public static Matrix derSoftmax(Matrix m)
+    {
+        Matrix derSoftmax = new Matrix(m.rows, m.rows);
+        for(int i = 0; i < m.rows; ++i)
+        {
+            for(int j = 0; j < m.rows; ++j)
+            {
+                derSoftmax.data[i][j] =
+                        m.data[j][0] * ((i == j ? 1.0 : 0.0) - m.data[i][0]);
+            }
+        }
+        return derSoftmax;
     }
 }

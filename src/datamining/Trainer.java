@@ -52,9 +52,9 @@ public class Trainer
      * 12. The percentage of winning when away team was away
      * 13. The percentage of draw when away team was away
      * 14. The percentage of lose when away team was away
-     * 15. B365H = Bet365 home win odds
-     * 16. B365D = Bet365 draw odds
-     * 17. B365A = Bet365 away win odds 
+     * 15. Bet365 home win odds
+     * 16. Bet365 draw odds
+     * 17. Bet365 away lose odds 
      */
     private void extractFeatures()
     {
@@ -70,30 +70,30 @@ public class Trainer
             Match m = matches[i];
             allMatches[idx] = m;
 
-            inputs[idx] = new Matrix(17, 1);
+            inputs[idx] = new Matrix(9, 1);
             
             // Home team features
-            inputs[idx].data[0][0] = normalize(league.minGD, league.maxGD, m.homeTeam.GD);
-            inputs[idx].data[1][0] = m.homeTeam.getPercentageOfWin();
-            inputs[idx].data[2][0] = m.homeTeam.getPercentageOfDraw();
-            inputs[idx].data[3][0] = m.homeTeam.getPercentageOfLose();
-            inputs[idx].data[4][0] = m.homeTeam.getPercentageOfHomeWin();
-            inputs[idx].data[5][0] = m.homeTeam.getPercentageOfHomeDraw();
-            inputs[idx].data[6][0] = m.homeTeam.getPercentageOfHomeLose();
+            //inputs[idx].data[5][0] = normalize(league.minGD, league.maxGD, m.homeTeam.GD);
+            //inputs[idx].data[3][0] = m.homeTeam.getPercentageOfWin();
+            //inputs[idx].data[3][0] = m.homeTeam.getPercentageOfDraw();
+            //inputs[idx].data[3][0] = m.homeTeam.getPercentageOfLose();
+            inputs[idx].data[3][0] = m.homeTeam.getPercentageOfHomeWin();
+            inputs[idx].data[4][0] = m.homeTeam.getPercentageOfHomeDraw();
+            inputs[idx].data[5][0] = m.homeTeam.getPercentageOfHomeLose();
             
             // Away team features
-            inputs[idx].data[7][0] = normalize(league.minGD, league.maxGD, m.awayTeam.GD);
-            inputs[idx].data[8][0] = m.awayTeam.getPercentageOfWin();
-            inputs[idx].data[9][0] = m.awayTeam.getPercentageOfDraw();
-            inputs[idx].data[10][0] = m.awayTeam.getPercentageOfLose();
-            inputs[idx].data[11][0] = m.awayTeam.getPercentageOfAwayWin();
-            inputs[idx].data[12][0] = m.awayTeam.getPercentageOfAwayDraw();
-            inputs[idx].data[13][0] = m.awayTeam.getPercentageOfAwayLose();
+            //inputs[idx].data[6][0] = normalize(league.minGD, league.maxGD, m.awayTeam.GD);
+            //inputs[idx].data[4][0] = m.awayTeam.getPercentageOfWin();
+            //inputs[idx].data[4][0] = m.awayTeam.getPercentageOfDraw();
+            //inputs[idx].data[4][0] = m.awayTeam.getPercentageOfLose();
+            inputs[idx].data[6][0] = m.awayTeam.getPercentageOfAwayWin();
+            inputs[idx].data[7][0] = m.awayTeam.getPercentageOfAwayDraw();
+            inputs[idx].data[8][0] = m.awayTeam.getPercentageOfAwayLose();
             
             // Bet365 odds
-            inputs[idx].data[14][0] = normalize(league.minB365H, league.maxB365H, m.B365H);
-            inputs[idx].data[15][0] = normalize(league.minB365D, league.maxB365D, m.B365D);
-            inputs[idx].data[16][0] = normalize(league.minB365A, league.maxB365A, m.B365A);
+            inputs[idx].data[0][0] = normalize(league.minB365H, league.maxB365H, m.B365H);
+            inputs[idx].data[1][0] = normalize(league.minB365D, league.maxB365D, m.B365D);
+            inputs[idx].data[2][0] = normalize(league.minB365A, league.maxB365A, m.B365A);
 
             // Targets: Full Time Result
             targets[idx] = new Matrix(3, 1);

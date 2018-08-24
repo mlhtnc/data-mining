@@ -45,6 +45,8 @@ public class CSV_Reader
                 while ((line = br.readLine()) != null)
                 {
                     splitted = split(line, ",");
+                    if(isEmpty(splitted, map) == true)
+                        continue;
 
                     Match match = new Match();
                     String homeTeam = splitted[map.get("HomeTeam")];
@@ -55,21 +57,9 @@ public class CSV_Reader
                     match.HTHG      = Integer.parseInt(splitted[map.get("HTHG")]);
                     match.HTAG      = Integer.parseInt(splitted[map.get("HTAG")]);
                     match.HTR       = splitted[map.get("HTR")].charAt(0);
-                    
-                    if(splitted[map.get("B365H")].isEmpty() ||
-                       splitted[map.get("B365D")].isEmpty() ||
-                       splitted[map.get("B365A")].isEmpty())
-                    {
-                        match.B365H = 2.0;
-                        match.B365D = 2.0;
-                        match.B365A = 2.0;
-                    }
-                    else
-                    {
-                        match.B365H     = Double.parseDouble(splitted[map.get("B365H")]);
-                        match.B365D     = Double.parseDouble(splitted[map.get("B365D")]);
-                        match.B365A     = Double.parseDouble(splitted[map.get("B365A")]);
-                    }
+                    match.B365H     = Double.parseDouble(splitted[map.get("B365H")]);
+                    match.B365D     = Double.parseDouble(splitted[map.get("B365D")]);
+                    match.B365A     = Double.parseDouble(splitted[map.get("B365A")]);
 
                     // If team doesn't exist, create a new team.
                     if(teamNameMap.containsKey(homeTeam) == false)
@@ -131,5 +121,15 @@ public class CSV_Reader
         }
         
         return list.toArray(new String[list.size()]);
+    }
+    
+    private static boolean isEmpty(String[] s, HashMap<String, Integer> map)
+    {
+        return  s[map.get("HomeTeam")].isEmpty() || s[map.get("AwayTeam")].isEmpty() ||
+                s[map.get("FTHG")].isEmpty() || s[map.get("FTAG")].isEmpty() ||
+                s[map.get("HTHG")].isEmpty() || s[map.get("HTAG")].isEmpty() ||
+                s[map.get("FTR")].isEmpty() || s[map.get("HTR")].isEmpty() ||
+                s[map.get("B365H")].isEmpty() || s[map.get("B365D")].isEmpty() ||
+                s[map.get("B365A")].isEmpty();
     }
 }

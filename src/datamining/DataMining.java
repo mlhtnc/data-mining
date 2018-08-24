@@ -12,19 +12,24 @@ import neuralnetwork.NeuralNetwork;
  * @author tnc
  */
 public class DataMining
-{       
+{
+    // TODO:
+    // -Train each team w.r.t their last 5 matches. So store that statistic
+    // in the team class.
+    
+    
     // Data Path
     static final String DATA_PATH = System.getProperty("user.home") + File.separator +
             "Desktop" + File.separator + "data" + File.separator;
     
     // League Paths
-    static final String PL_PATH = DATA_PATH + "pl" + File.separator;
-    static final String SA_PATH = DATA_PATH + "sa" + File.separator;
-    static final String TSL_PATH = DATA_PATH + "tsl" + File.separator;
-    static final String LLPD_PATH = DATA_PATH + "llpd" + File.separator;
-
+    static final String ENG_PATH = DATA_PATH + "eng" + File.separator;
+    static final String ITA_PATH = DATA_PATH + "ita" + File.separator;
+    static final String TUR_PATH = DATA_PATH + "tur" + File.separator;
+    static final String SPA_PATH = DATA_PATH + "spa" + File.separator;
+    static final String GER_PATH = DATA_PATH + "ger" + File.separator;
     
-    League lg = CSV_Reader.read(SA_PATH);
+    League lg = CSV_Reader.read(GER_PATH);
     NeuralNetwork nn;
     Trainer trainer;
     
@@ -40,18 +45,18 @@ public class DataMining
     public void train()
     {
         nn = new NeuralNetwork(
-            new int[]{17, 17, 14, 3},
+            new int[]{9, 10, 42, 3},
             new ActivationType[]{
-                ActivationType.SIGMOID,
-                ActivationType.SIGMOID,
+                ActivationType.TANH,
+                ActivationType.TANH,
                 ActivationType.SOFTMAX
             },
             LossType.CROSS_ENTROPY,
-            0.0005
+            0.0007
         );
         
         trainer = new Trainer(nn, lg, 0.1f, true);
-        trainer.train(3000);      
+        trainer.train(100);      
         trainer.test();
     }
     
@@ -75,30 +80,30 @@ public class DataMining
         double B365A = sc.nextDouble();
         
         Matrix inputs;
-        inputs = new Matrix(17, 1);
+        inputs = new Matrix(9, 1);
             
         // Home team features
-        inputs.data[0][0] = Trainer.normalize(lg.minGD, lg.maxGD, homeTeam.GD);
-        inputs.data[1][0] = homeTeam.getPercentageOfWin();
-        inputs.data[2][0] = homeTeam.getPercentageOfDraw();
-        inputs.data[3][0] = homeTeam.getPercentageOfLose();
-        inputs.data[4][0] = homeTeam.getPercentageOfHomeWin();
-        inputs.data[5][0] = homeTeam.getPercentageOfHomeDraw();
-        inputs.data[6][0] = homeTeam.getPercentageOfHomeLose();
+        //inputs.data[0][0] = Trainer.normalize(lg.minGD, lg.maxGD, homeTeam.GD);
+        //inputs.data[1][0] = homeTeam.getPercentageOfWin();
+        //inputs.data[2][0] = homeTeam.getPercentageOfDraw();
+        //inputs.data[3][0] = homeTeam.getPercentageOfLose();
+        inputs.data[3][0] = homeTeam.getPercentageOfHomeWin();
+        inputs.data[4][0] = homeTeam.getPercentageOfHomeDraw();
+        inputs.data[5][0] = homeTeam.getPercentageOfHomeLose();
 
         // Away team features
-        inputs.data[7][0] = Trainer.normalize(lg.minGD, lg.maxGD, awayTeam.GD);
-        inputs.data[8][0] = awayTeam.getPercentageOfWin();
-        inputs.data[9][0] = awayTeam.getPercentageOfDraw();
-        inputs.data[10][0] = awayTeam.getPercentageOfLose();
-        inputs.data[11][0] = awayTeam.getPercentageOfAwayWin();
-        inputs.data[12][0] = awayTeam.getPercentageOfAwayDraw();
-        inputs.data[13][0] = awayTeam.getPercentageOfAwayLose();
+        //inputs.data[7][0] = Trainer.normalize(lg.minGD, lg.maxGD, awayTeam.GD);
+        //inputs.data[8][0] = awayTeam.getPercentageOfWin();
+        //inputs.data[9][0] = awayTeam.getPercentageOfDraw();
+        //inputs.data[10][0] = awayTeam.getPercentageOfLose();
+        inputs.data[6][0] = awayTeam.getPercentageOfAwayWin();
+        inputs.data[7][0] = awayTeam.getPercentageOfAwayDraw();
+        inputs.data[8][0] = awayTeam.getPercentageOfAwayLose();
 
         // Bet365 odds
-        inputs.data[14][0] = Trainer.normalize(lg.minB365H, lg.maxB365H, B365H);
-        inputs.data[15][0] = Trainer.normalize(lg.minB365D, lg.maxB365D, B365D);
-        inputs.data[16][0] = Trainer.normalize(lg.minB365A, lg.maxB365A, B365A);
+        inputs.data[0][0] = Trainer.normalize(lg.minB365H, lg.maxB365H, B365H);
+        inputs.data[1][0] = Trainer.normalize(lg.minB365D, lg.maxB365D, B365D);
+        inputs.data[2][0] = Trainer.normalize(lg.minB365A, lg.maxB365A, B365A);
         
         nn.setInput(inputs);
         nn.feedForward();

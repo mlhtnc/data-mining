@@ -224,6 +224,11 @@ public class Trainer
         }   
     }
     
+    public void train_NE()
+    {
+        
+    }
+    
     public void test_KNN(KNN knn)
     {
         knn.setDataset(trainingInputs);

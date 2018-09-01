@@ -11,12 +11,7 @@ import neuralnetwork.NeuralNetwork;
  * @author tnc
  */
 public class DataMining
-{
-    // TODO:
-    // -Train each team w.r.t their last 5 matches. So store that statistic
-    // in the team class.
-    
-    
+{    
     // Data Path
     static final String DATA_PATH = System.getProperty("user.home") + File.separator +
             "Desktop" + File.separator + "data" + File.separator;
@@ -28,12 +23,12 @@ public class DataMining
     static final String SPA_PATH = DATA_PATH + "spa" + File.separator;
     static final String GER_PATH = DATA_PATH + "ger" + File.separator;
     
-    League lg = CSV_Reader.read(TUR_PATH);
+    League lg = CSV_Reader.read(SPA_PATH);
     
     public static void main(String[] args)
     {        
         DataMining data_mining = new DataMining();
-        data_mining.run_KNN();
+        data_mining.run_NN();
     }
      
     public void run_NN()
@@ -41,18 +36,23 @@ public class DataMining
         Trainer trainer = new Trainer(lg, 0.1f, true);
         
         NeuralNetwork nn = new NeuralNetwork(
-            new int[]{17, 10, 42, 3},
+            new int[]{17, 13, 24, 3},
             new ActivationType[]{
-                ActivationType.TANH,
-                ActivationType.TANH,
+                ActivationType.SIGMOID,
+                ActivationType.SIGMOID,
                 ActivationType.SOFTMAX
             },
             LossType.CROSS_ENTROPY,
-            0.0007
+            0.0005
         );
         
-        trainer.train_NN(nn, 10);      
+        trainer.train_NN(nn, 5000); 
         trainer.test_NN(nn);
+    }
+    
+    public void run_Neuroevolution()
+    {
+        
     }
     
     public void run_KNN()

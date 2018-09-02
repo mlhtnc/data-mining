@@ -35,7 +35,7 @@ public class Matrix
         }
     }
     
-    // Copy constructor
+    // Copy constructor.
     public Matrix(Matrix m)
     {
         this(m.rows, m.cols);

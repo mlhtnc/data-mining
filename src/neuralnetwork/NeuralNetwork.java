@@ -9,9 +9,9 @@ public class NeuralNetwork
     private final Layer[] layers;
     private Matrix target;
     
-    double learningRate;
-    double loss;
-    LossType lossType;
+    public double learningRate;
+    private double loss;
+    public LossType lossType;
     
     public NeuralNetwork(
         int[] topology,
@@ -28,6 +28,26 @@ public class NeuralNetwork
             layers[i] = new Layer(topology[i], topology[i + 1], actTypes[i]);
             layers[i].setNetwork(this);
             
+            if (i > 0)
+            {
+                layers[i].setInputLayer(layers[i - 1]);
+                layers[i - 1].setOutputLayer(layers[i]);
+            }
+        }
+    }
+    
+    // Copy constructor.
+    public NeuralNetwork(NeuralNetwork other)
+    {
+        layers = new Layer[other.layers.length];
+        learningRate = other.learningRate;
+        lossType = other.lossType;
+        
+        for(int i = 0; i < other.layers.length; ++i)
+        {
+            layers[i] = new Layer(other.layers[i]);
+            layers[i].setNetwork(this);
+                    
             if (i > 0)
             {
                 layers[i].setInputLayer(layers[i - 1]);
@@ -132,5 +152,9 @@ public class NeuralNetwork
     
     public Matrix getTarget() {
         return target;
+    }
+    
+    public Layer[] getLayers() {
+        return layers;
     }
 }

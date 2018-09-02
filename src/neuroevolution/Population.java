@@ -1,6 +1,6 @@
 package neuroevolution;
 
-import neuralnetwork.NeuralNetwork;
+import java.util.Arrays;
 
 /**
  *
@@ -8,21 +8,64 @@ import neuralnetwork.NeuralNetwork;
  */
 public class Population
 {
-    private NeuralNetwork[] individuals;
+    private Chromosome[] chroms;
     
-    private int populationSize;
+    private final int populationSize;
     
-    private int mutationRate;
+    private final double mutationRate;
     
     private int generationNumber;
     
-    public Population(int populationSize)
+    public Population(int populationSize, double mutationRate)
     {
+        this.populationSize = populationSize;
+        this.mutationRate  = mutationRate;
+        chroms = new Chromosome[populationSize];
         
+        for(int i = 0; i < chroms.length; ++i)
+        {
+            chroms[i] = new Chromosome();
+            chroms[i].setPopulation(this);
+        }
     }
     
     public void evolve()
     {
+        // Calculate fitness of each chromosome.
+        for(int i = 0; i < chroms.length; ++i)
+            chroms[i].calculateFitness();
         
+        Arrays.sort(chroms);
+        
+        System.out.println(chroms[0].getFitness());
+        
+        // Crossover the best two chromosomes.
+        Chromosome child = chroms[0].crossover(chroms[1]);
+        
+        // Mutate this child and produce new chromosomes.
+        for(int i = 0; i < chroms.length; ++i)
+            chroms[i] = child.mutate();
+        
+        this.generationNumber++;
+    }
+
+    public double getMutationRate() {
+        return mutationRate;
+    }
+
+    public int getGenerationNumber() {
+        return generationNumber;
+    }
+    
+    @Override
+    public String toString()
+    {
+        String ret = "Chromosomes:\n";
+        for(int i = 0; i < populationSize; ++i)
+        {
+            ret += String.format("#%d\t", i + 1);
+            ret += chroms[i].toString();
+        }
+        return ret;
     }
 }

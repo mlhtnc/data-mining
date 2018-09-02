@@ -29,6 +29,14 @@ public class Layer
         biases.randomize();
     }
     
+    // Copy constructor
+    public Layer(Layer other)
+    {
+        activationType = other.activationType;
+        weights = new Matrix(other.weights);
+        biases  = new Matrix(other.biases);
+    }
+    
     public void feedForward()
     {
         output = Matrix.naiveMult(weights, input);
@@ -145,5 +153,15 @@ public class Layer
 
     public void setOutput_d_E(Matrix output_d_E) {
         this.output_d_E = output_d_E;
-    }   
+    }
+
+    public Matrix getWeights() {
+        return weights;
+    }
+
+    public Matrix getBiases() {
+        return biases;
+    }
+    
+    
 }

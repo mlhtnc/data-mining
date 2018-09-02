@@ -4,6 +4,7 @@ import java.io.File;
 import knn.KNN;
 import neuralnetwork.ActivationType;
 import neuralnetwork.LossType;
+import neuralnetwork.Matrix;
 import neuralnetwork.NeuralNetwork;
 
 /**
@@ -23,12 +24,12 @@ public class DataMining
     static final String SPA_PATH = DATA_PATH + "spa" + File.separator;
     static final String GER_PATH = DATA_PATH + "ger" + File.separator;
     
-    League lg = CSV_Reader.read(SPA_PATH);
+    League lg = CSV_Reader.read(TUR_PATH);
     
     public static void main(String[] args)
     {        
         DataMining data_mining = new DataMining();
-        data_mining.run_NN();
+        data_mining.run_NE();
     }
      
     public void run_NN()
@@ -50,9 +51,10 @@ public class DataMining
         trainer.test_NN(nn);
     }
     
-    public void run_Neuroevolution()
+    public void run_NE()
     {
-        
+        Trainer trainer = new Trainer(lg, 0.1f, false);
+        trainer.train_NE();
     }
     
     public void run_KNN()

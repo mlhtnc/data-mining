@@ -6,6 +6,8 @@ import java.util.Scanner;
 import knn.KNN;
 import neuralnetwork.Matrix;
 import neuralnetwork.NeuralNetwork;
+import neuroevolution.Chromosome;
+import neuroevolution.Population;
 
 /**
  *
@@ -226,7 +228,11 @@ public class Trainer
     
     public void train_NE()
     {
+        Population population = new Population(120, 0.01);
+        Chromosome.setInputTarget(inputs, targets);
         
+        for(int i = 0; i < 1005; ++i)
+            population.evolve();
     }
     
     public void test_KNN(KNN knn)

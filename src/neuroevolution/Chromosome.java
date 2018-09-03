@@ -15,27 +15,29 @@ public class Chromosome implements Comparable<Chromosome>
 {
     public static Random rnd = new Random();
     
-    private Population population;
-    
     private static Matrix[] inputs;
     
     private static Matrix[] targets;
     
+    private static int[] topology;
+    
+    private static ActivationType[] activations;
+    
+    private static LossType lossType;
+    
+    private Population population;
+    
     private NeuralNetwork gene;
     
-    private int fitness;
+    private double fitness;
     
     public Chromosome()
     {
         gene = new NeuralNetwork(
-            new int[]{17, 13, 24, 3},
-            new ActivationType[]{
-                ActivationType.SIGMOID,
-                ActivationType.SIGMOID,
-                ActivationType.SOFTMAX
-            },
-            LossType.CROSS_ENTROPY,
-            0.0005
+            topology,
+            activations,
+            lossType,
+            0.0005      // It doesn't matter because we don't use backprop.
         );
     }
     
@@ -48,15 +50,22 @@ public class Chromosome implements Comparable<Chromosome>
     
     public void calculateFitness()
     {
-        this.fitness = 0;
+        fitness = 0;
         for(int i = 0; i < inputs.length; ++i)
         {
             gene.setInput(inputs[i]);
             gene.setTarget(targets[i]);
             gene.feedForward();
-            
-            if(gene.getOutput().getMaxRow() == targets[i].getMaxRow())
+
+            // If there is 1 neuron at the output layer,
+            // use this method to measure fitness.
+            if(topology[topology.length - 1] == 1) {
+                fitness += 1.0 - Math.abs(gene.getOutput().data[0][0] - targets[i].data[0][0]);
+            }
+            // Otherwise check if the max one is the target or not.
+            else if(gene.getOutput().getMaxRow() == targets[i].getMaxRow()) {
                 this.fitness++;
+            }
         }
     }
     
@@ -80,7 +89,7 @@ public class Chromosome implements Comparable<Chromosome>
                     Matrix weight2 = layers2[i].getWeights();
                     Matrix weightOfChild = layersOfChild[i].getWeights();
 
-                    if(j % 2 == 0)
+                    if(k % 2 == 0)
                         weightOfChild.data[j][k] = weight1.data[j][k];
                     else
                         weightOfChild.data[j][k] = weight2.data[j][k];
@@ -101,7 +110,7 @@ public class Chromosome implements Comparable<Chromosome>
                     if(k % 2 == 0)
                         biasesOfChild.data[j][k] = biases1.data[j][k];
                     else
-                        biasesOfChild.data[j][k] = biases2.data[j][k];
+                        biasesOfChild.data[j][k] = biases2.data[j][k];                    
                 }
             }
         }
@@ -143,19 +152,28 @@ public class Chromosome implements Comparable<Chromosome>
         return mutated;
     }
 
-    public static void setInputTarget(Matrix[] inputs, Matrix[] targets)
+    public static void initGene(Matrix[] inputs, Matrix[] targets,
+            int[] topology, ActivationType[] act, LossType lossType)
     {
         Chromosome.inputs = inputs;
         Chromosome.targets = targets;
+        Chromosome.topology = topology;
+        Chromosome.activations = act;
+        Chromosome.lossType = lossType;
     }
-
-    public int getFitness() {
+    
+    public double getFitness() {
         return fitness;
     }
     
     public void setPopulation(Population population)
     {
         this.population = population;
+    }
+    
+    public NeuralNetwork getGene()
+    {
+        return gene;
     }
 
     @Override
@@ -171,7 +189,7 @@ public class Chromosome implements Comparable<Chromosome>
     @Override
     public String toString()
     {
-        String ret = String.format("Fitness: %d\n", fitness);
+        String ret = String.format("Fitness: %.2f\n", fitness);
         return ret;
     }
 }

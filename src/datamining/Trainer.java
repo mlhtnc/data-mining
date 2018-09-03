@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 import knn.KNN;
+import neuralnetwork.ActivationType;
+import neuralnetwork.LossType;
 import neuralnetwork.Matrix;
 import neuralnetwork.NeuralNetwork;
 import neuroevolution.Chromosome;
@@ -228,11 +230,33 @@ public class Trainer
     
     public void train_NE()
     {
-        Population population = new Population(120, 0.01);
-        Chromosome.setInputTarget(inputs, targets);
+        // We should call this method before creating a population!
+        // It will set parameters for neural network.
+        Chromosome.initGene(
+            inputs,
+            targets,
+            new int[]{17, 13, 24, 3},
+            new ActivationType[]{
+                ActivationType.SIGMOID,
+                ActivationType.SIGMOID,
+                ActivationType.SOFTMAX
+            },
+            LossType.CROSS_ENTROPY
+//            new int[]{2, 74, 60, 1},
+//            new ActivationType[]{
+//                ActivationType.TANH,
+//                ActivationType.TANH,
+//                ActivationType.TANH
+//            },
+//            LossType.MSE
+        );
         
-        for(int i = 0; i < 1005; ++i)
+        Population population = new Population(120, 0.01);
+        
+        for(int i = 0; i < 1005; ++i) {
             population.evolve();
+            System.out.print(population.getFittest());
+        }
     }
     
     public void test_KNN(KNN knn)

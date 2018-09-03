@@ -1,6 +1,7 @@
 package neuroevolution;
 
 import java.util.Arrays;
+import neuralnetwork.Matrix;
 
 /**
  *
@@ -8,7 +9,7 @@ import java.util.Arrays;
  */
 public class Population
 {
-    private Chromosome[] chroms;
+    private final Chromosome[] chroms;
     
     private final int populationSize;
     
@@ -31,14 +32,6 @@ public class Population
     
     public void evolve()
     {
-        // Calculate fitness of each chromosome.
-        for(int i = 0; i < chroms.length; ++i)
-            chroms[i].calculateFitness();
-        
-        Arrays.sort(chroms);
-        
-        System.out.println(chroms[0].getFitness());
-        
         // Crossover the best two chromosomes.
         Chromosome child = chroms[0].crossover(chroms[1]);
         
@@ -46,6 +39,12 @@ public class Population
         for(int i = 0; i < chroms.length; ++i)
             chroms[i] = child.mutate();
         
+        // Calculate fitness of each chromosome.
+        for(int i = 0; i < chroms.length; ++i)
+            chroms[i].calculateFitness();
+        
+        Arrays.sort(chroms);
+                
         this.generationNumber++;
     }
 
@@ -55,6 +54,10 @@ public class Population
 
     public int getGenerationNumber() {
         return generationNumber;
+    }
+    
+    public Chromosome getFittest() {
+        return chroms[0];
     }
     
     @Override

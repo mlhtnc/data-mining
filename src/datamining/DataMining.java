@@ -4,7 +4,6 @@ import java.io.File;
 import knn.KNN;
 import neuralnetwork.ActivationType;
 import neuralnetwork.LossType;
-import neuralnetwork.Matrix;
 import neuralnetwork.NeuralNetwork;
 
 /**

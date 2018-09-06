@@ -23,7 +23,7 @@ public class DataMining
     static final String SPA_PATH = DATA_PATH + "spa" + File.separator;
     static final String GER_PATH = DATA_PATH + "ger" + File.separator;
     
-    League lg = CSV_Reader.read(TUR_PATH);
+    League lg = CSV_Reader.read(ENG_PATH);
     
     public static void main(String[] args)
     {        

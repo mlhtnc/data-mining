@@ -1,7 +1,6 @@
 package neuroevolution;
 
 import java.util.Arrays;
-import neuralnetwork.Matrix;
 
 /**
  *
@@ -54,6 +53,10 @@ public class Population
 
     public int getGenerationNumber() {
         return generationNumber;
+    }
+
+    public int getPopulationSize() {
+        return populationSize;
     }
     
     public Chromosome getFittest() {

@@ -1,6 +1,5 @@
 package tests;
 
-import java.util.Random;
 import neuralnetwork.ActivationType;
 import neuralnetwork.LossType;
 import neuralnetwork.Matrix;
@@ -73,7 +72,8 @@ public class NeuroevolutionTest {
         Population population = new Population(100, 0.05);
         Chromosome fittest = null;
         
-        for(int i = 0; i < 10000; ++i) {
+        while(true)
+        {
             population.evolve();
             
             fittest = population.getFittest();

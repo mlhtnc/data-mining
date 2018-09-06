@@ -237,25 +237,21 @@ public class Trainer
             targets,
             new int[]{17, 13, 24, 3},
             new ActivationType[]{
-                ActivationType.SIGMOID,
-                ActivationType.SIGMOID,
+                ActivationType.TANH,
+                ActivationType.TANH,
                 ActivationType.SOFTMAX
             },
             LossType.CROSS_ENTROPY
-//            new int[]{2, 74, 60, 1},
-//            new ActivationType[]{
-//                ActivationType.TANH,
-//                ActivationType.TANH,
-//                ActivationType.TANH
-//            },
-//            LossType.MSE
         );
         
-        Population population = new Population(120, 0.01);
+        Population population = new Population(250, 0.05);
         
-        for(int i = 0; i < 1005; ++i) {
+        for(int i = 0; i < 1000; ++i) {
             population.evolve();
-            System.out.print(population.getFittest());
+            System.out.print("Generation: " + population.getGenerationNumber() + ", ");
+            System.out.print("Best Fitness: " + population.getFittest().getFitness() + ", ");
+            System.out.println(String.format("Accuracy: %.2f",
+                 population.getFittest().getFitness() / inputs.length * 100));
         }
     }
     

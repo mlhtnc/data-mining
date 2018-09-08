@@ -1,7 +1,6 @@
 package datamining;
 
 import java.io.File;
-import knn.KNN;
 import neuralnetwork.ActivationType;
 import neuralnetwork.LossType;
 import neuralnetwork.NeuralNetwork;
@@ -11,7 +10,10 @@ import neuralnetwork.NeuralNetwork;
  * @author tnc
  */
 public class DataMining
-{    
+{
+    // TODO:
+    // We need to keep the fittest of all generations.
+    
     // Data Path
     static final String DATA_PATH = System.getProperty("user.home") + File.separator +
             "Desktop" + File.separator + "data" + File.separator;
@@ -54,12 +56,5 @@ public class DataMining
     {
         Trainer trainer = new Trainer(lg, 0.1f, false);
         trainer.train_NE();
-    }
-    
-    public void run_KNN()
-    {
-        Trainer trainer = new Trainer(lg, 0.1f, false);
-        KNN knn = new KNN();
-        trainer.test_KNN(knn);
     }
 }

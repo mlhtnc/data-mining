@@ -3,7 +3,6 @@ package datamining;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
-import knn.KNN;
 import neuralnetwork.ActivationType;
 import neuralnetwork.LossType;
 import neuralnetwork.Matrix;
@@ -173,6 +172,41 @@ public class Trainer
             System.out.println(nn.getOutput());
         }
         
+        testNewData(nn);
+    }
+    
+    public void train_NE()
+    {
+        // We should call this method before creating a population!
+        // It will set parameters for neural network.
+        Chromosome.initGene(
+            inputs,
+            targets,
+            new int[]{17, 13, 24, 3},
+            new ActivationType[]{
+                ActivationType.TANH,
+                ActivationType.TANH,
+                ActivationType.SOFTMAX
+            },
+            LossType.CROSS_ENTROPY
+        );
+        
+        Population population = new Population(250, 0.05);
+        
+        for(int i = 0; i < 10; ++i) {
+            population.evolve();
+            System.out.print("Generation: " + population.getGenerationNumber() + ", ");
+            System.out.print("Fittest: " + population.getFittest().getFitness() + ", ");
+            System.out.println(String.format("Accuracy: %.2f",
+                 population.getFittest().getFitness() / inputs.length * 100));
+        }
+        
+        test_NN(population.getFittest().getGene());
+        testNewData(population.getFittest().getGene());
+    }
+   
+    private void testNewData(NeuralNetwork nn)
+    {
         while(true)
         {
             // Predict new inputs.
@@ -225,58 +259,7 @@ public class Trainer
 
             System.out.println(homeTeam.name + " - " + awayTeam.name);
             System.out.println(nn.getOutput());
-        }   
-    }
-    
-    public void train_NE()
-    {
-        // We should call this method before creating a population!
-        // It will set parameters for neural network.
-        Chromosome.initGene(
-            inputs,
-            targets,
-            new int[]{17, 13, 24, 3},
-            new ActivationType[]{
-                ActivationType.TANH,
-                ActivationType.TANH,
-                ActivationType.SOFTMAX
-            },
-            LossType.CROSS_ENTROPY
-        );
-        
-        Population population = new Population(250, 0.05);
-        
-        for(int i = 0; i < 1000; ++i) {
-            population.evolve();
-            System.out.print("Generation: " + population.getGenerationNumber() + ", ");
-            System.out.print("Best Fitness: " + population.getFittest().getFitness() + ", ");
-            System.out.println(String.format("Accuracy: %.2f",
-                 population.getFittest().getFitness() / inputs.length * 100));
         }
-    }
-    
-    public void test_KNN(KNN knn)
-    {
-        knn.setDataset(trainingInputs);
-        knn.setTargets(trainingTargets);
-
-        int correct = 0;
-
-        // Test out testing data.
-        for(int i = 0; i < testingInputs.length; i++)
-        {
-            Matrix output = knn.predict(testingInputs[i], 140);
-
-            System.out.println("\nTest#" + (i + 1));
-            testingMatches[i].print();
-            System.out.print(testingTargets[i]);
-            System.out.println(output.toString());
-
-            if(output.getMaxRow() == testingTargets[i].getMaxRow())
-                correct++;
-        }
-
-        System.out.println(String.format("Accuracy: %.2f%%" , ((double) correct) / testingInputs.length * 100.0));        
     }
     
     public static double normalize(double oldMin, double oldMax, double value)

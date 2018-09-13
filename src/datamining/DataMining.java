@@ -24,13 +24,13 @@ public class DataMining
     
     public DataMining()
     {
-        league = CSV_Reader.read(ENG_PATH);
+        league = CSV_Reader.read(TUR_PATH);
     }
      
     public void run_NN()
     {
         Trainer trainer = new Trainer(league, 0.1f, true);
-        trainer.train_NN(500); 
+        trainer.train_NN(5000); 
     }
     
     public void run_NE()
@@ -42,6 +42,6 @@ public class DataMining
     public static void main(String[] args)
     {        
         DataMining data_mining = new DataMining();
-        data_mining.run_NE();
+        data_mining.run_NN();
     }
 }

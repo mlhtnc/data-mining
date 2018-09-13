@@ -154,7 +154,7 @@ public class Trainer
     public void train_NN(int epoch)
     {
         NeuralNetwork nn = new NeuralNetwork(
-            new int[]{17, 13, 24, 3},
+            new int[]{inputs[0].rows, 13, 24, targets[0].rows},
             new ActivationType[]{
                 ActivationType.SIGMOID,
                 ActivationType.SIGMOID,
@@ -164,8 +164,32 @@ public class Trainer
             0.0005
         );
         
-        nn.train(trainingInputs, trainingTargets,
-                testingInputs, testingTargets, epoch);
+        for(int i = 0; i < epoch; i++)
+        {
+            double avarageLoss = 0.0;
+            for(int j = 0; j < trainingInputs.length; j++)
+            {
+                nn.setInput(trainingInputs[j]);
+                nn.setTarget(trainingTargets[j]);
+                nn.feedForward();
+                nn.backpropagation();
+                avarageLoss += nn.getLoss();
+            }
+            
+            int correct = 0;
+            for(int j = 0; j < testingInputs.length; j++)
+            {
+                nn.setInput(testingInputs[j]);
+                nn.setTarget(testingTargets[j]);
+                nn.feedForward();
+                
+                if(testingTargets[j].getMaxRow() == nn.getOutput().getMaxRow())
+                    correct++;
+            }
+            
+            avarageLoss /= trainingInputs.length;
+            printLog(i, avarageLoss, correct, testingInputs.length);
+        }
 
         test_NN(nn);
         testNewData(nn);
@@ -178,7 +202,7 @@ public class Trainer
         Chromosome.initGene(
             inputs,
             targets,
-            new int[]{17, 13, 24, 3},
+            new int[]{inputs[0].rows, 13, 24, targets[0].rows},
             new ActivationType[]{
                 ActivationType.SIGMOID,
                 ActivationType.SIGMOID,
@@ -272,6 +296,16 @@ public class Trainer
             System.out.println(homeTeam.name + " - " + awayTeam.name);
             System.out.println(nn.getOutput());
         }
+    }
+    
+    private void printLog(int epoch, double avarageLoss, int correct, int total)
+    {
+        String epochStr = String.format("Epoch: %d, ", epoch + 1);
+        String lossStr  = String.format("Loss = %.10f, ", avarageLoss);
+        String accuracyStr = String.format("Accuracy: %.0f%% (%d/%d)",
+                (((double) correct) / total) * 100.0, correct, total);
+        
+        System.out.println(epochStr + lossStr + accuracyStr);
     }
     
     public static double normalize(double oldMin, double oldMax, double value)

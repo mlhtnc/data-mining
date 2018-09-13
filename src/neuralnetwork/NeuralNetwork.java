@@ -9,9 +9,9 @@ public class NeuralNetwork
     private final Layer[] layers;
     private Matrix target;
     
-    public double learningRate;
+    private final double learningRate;
     private double loss;
-    public LossType lossType;
+    private final LossType lossType;
     
     public NeuralNetwork(
         int[] topology,
@@ -56,37 +56,6 @@ public class NeuralNetwork
         }
     }
     
-    public void train(Matrix[] trainingInputs, Matrix[] trainingTargets,
-            Matrix[] testingInputs, Matrix[] testingTargets, int epoch)
-    {
-        for(int i = 0; i < epoch; i++)
-        {
-            double avarageLoss = 0.0;
-            for(int j = 0; j < trainingInputs.length; j++)
-            {
-                this.setInput(trainingInputs[j]);
-                this.setTarget(trainingTargets[j]);
-                this.feedForward();
-                this.backpropagation();
-                avarageLoss += loss;
-            }
-            
-            int correct = 0;
-            for(int j = 0; j < testingInputs.length; j++)
-            {
-                this.setInput(testingInputs[j]);
-                this.setTarget(testingTargets[j]);
-                this.feedForward();
-                
-                if(testingTargets[j].getMaxRow() == getOutput().getMaxRow())
-                    correct++;
-            }
-            
-            avarageLoss /= trainingInputs.length;
-            printLog(i, avarageLoss, correct, testingInputs.length);
-        }
-    }
-    
     public void feedForward()
     {
         for(int i = 0; i < layers.length; i++)
@@ -107,29 +76,19 @@ public class NeuralNetwork
     {
         Matrix output = layers[layers.length - 1].getOutput();
         
-        if(lossType == LossType.MSE)
+        switch(lossType)
         {
-            loss = LossFunction.mse(output, target);
+            case MSE:
+                loss = LossFunction.mse(output, target);
+                break;
+            case CROSS_ENTROPY:
+                loss = LossFunction.crossEntropy(output, target);
+                break;
+            default:
+                System.err.println("Error: Undefined loss type, cannot calculate loss.");
+                loss = -1.0;
+                break;
         }
-        else if(lossType == LossType.CROSS_ENTROPY)
-        {
-            loss = LossFunction.crossEntropy(output, target);
-        }
-        else
-        {
-            System.err.println("Error: Undefined loss type, cannot calculate loss.");
-            loss = -1.0;
-        }
-    }
-    
-    private void printLog(int epoch, double avarageLoss, int correct, int total)
-    {
-        String epochStr = String.format("Epoch: %d, ", epoch + 1);
-        String lossStr  = String.format("Loss = %.10f, ", avarageLoss);
-        String accuracyStr = String.format("Accuracy: %.0f%% (%d/%d)",
-                (((double) correct) / total) * 100.0, correct, total);
-        
-        System.out.println(epochStr + lossStr + accuracyStr);
     }
     
     public void setInput(Matrix input) {
@@ -140,13 +99,11 @@ public class NeuralNetwork
         this.target = new Matrix(target);
     }
     
-    public Matrix getOutput()
-    {
+    public Matrix getOutput() {
         return layers[layers.length - 1].getOutput();
     }
     
-    public double getLoss()
-    {
+    public double getLoss() {
         return loss;
     }
     
@@ -157,4 +114,12 @@ public class NeuralNetwork
     public Layer[] getLayers() {
         return layers;
     }
+
+    public double getLearningRate() {
+        return learningRate;
+    }
+
+    public LossType getLossType() {
+        return lossType;
+    }    
 }

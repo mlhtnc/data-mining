@@ -58,10 +58,10 @@ public class Layer
         Matrix input_d_E = Matrix.naiveMult(Matrix.transpose(weights), net_d_E);
         
         // Update weights
-        weights.sub(w_d_E.mult(network.learningRate));
+        weights.sub(w_d_E.mult(network.getLearningRate()));
         
         // Update biases
-        biases.sub(net_d_E.mult(network.learningRate));
+        biases.sub(net_d_E.mult(network.getLearningRate()));
         
         // Backpropagate the gradients to input layer of this layer.
         // If input layer is null, there is nothing to backpropagate.
@@ -92,12 +92,12 @@ public class Layer
         // If this layer is last layer, calculate loss.
         if(outputLayer == null)
         {
-            if(network.lossType == LossType.MSE)
+            if(network.getLossType() == LossType.MSE)
             {
                 output_d_E = LossFunction.derMse(output, network.getTarget());
             }
             // NOTE: Softmax only works with cross entropy and vice versa.
-            else if(network.lossType == LossType.CROSS_ENTROPY &&
+            else if(network.getLossType() == LossType.CROSS_ENTROPY &&
                     activationType == ActivationType.SOFTMAX)
             {
                 return Matrix.sub(output, network.getTarget());
@@ -162,6 +162,4 @@ public class Layer
     public Matrix getBiases() {
         return biases;
     }
-    
-    
 }

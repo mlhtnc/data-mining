@@ -1,10 +1,5 @@
 package datamining;
 
-import java.io.File;
-import neuralnetwork.ActivationType;
-import neuralnetwork.LossType;
-import neuralnetwork.NeuralNetwork;
-
 /**
  *
  * @author tnc
@@ -14,47 +9,39 @@ public class DataMining
     // TODO:
     // We need to keep the fittest of all generations.
     
-    // Data Path
-    static final String DATA_PATH = System.getProperty("user.home") + File.separator +
-            "Desktop" + File.separator + "data" + File.separator;
+    private static final String SEP = java.io.File.separator;
+    private static final String HOME_PATH = System.getProperty("user.home") + SEP;
+    private static final String DATA_PATH = HOME_PATH + "Desktop" + SEP + "data" + SEP;
     
     // League Paths
-    static final String ENG_PATH = DATA_PATH + "eng" + File.separator;
-    static final String ITA_PATH = DATA_PATH + "ita" + File.separator;
-    static final String TUR_PATH = DATA_PATH + "tur" + File.separator;
-    static final String SPA_PATH = DATA_PATH + "spa" + File.separator;
-    static final String GER_PATH = DATA_PATH + "ger" + File.separator;
+    private static final String ENG_PATH = DATA_PATH + "eng" + SEP;
+    private static final String ITA_PATH = DATA_PATH + "ita" + SEP;
+    private static final String TUR_PATH = DATA_PATH + "tur" + SEP;
+    private static final String SPA_PATH = DATA_PATH + "spa" + SEP;
+    private static final String GER_PATH = DATA_PATH + "ger" + SEP;
     
-    League lg = CSV_Reader.read(ENG_PATH);
+    private final League league;
+    
+    public DataMining()
+    {
+        league = CSV_Reader.read(ENG_PATH);
+    }
+     
+    public void run_NN()
+    {
+        Trainer trainer = new Trainer(league, 0.1f, true);
+        trainer.train_NN(500); 
+    }
+    
+    public void run_NE()
+    {
+        Trainer trainer = new Trainer(league, 0.1f, false);
+        trainer.train_NE(100);
+    }
     
     public static void main(String[] args)
     {        
         DataMining data_mining = new DataMining();
         data_mining.run_NE();
-    }
-     
-    public void run_NN()
-    {
-        Trainer trainer = new Trainer(lg, 0.1f, true);
-        
-        NeuralNetwork nn = new NeuralNetwork(
-            new int[]{17, 13, 24, 3},
-            new ActivationType[]{
-                ActivationType.SIGMOID,
-                ActivationType.SIGMOID,
-                ActivationType.SOFTMAX
-            },
-            LossType.CROSS_ENTROPY,
-            0.0005
-        );
-        
-        trainer.train_NN(nn, 5000); 
-        trainer.test_NN(nn);
-    }
-    
-    public void run_NE()
-    {
-        Trainer trainer = new Trainer(lg, 0.1f, false);
-        trainer.train_NE();
     }
 }

@@ -151,10 +151,54 @@ public class Trainer
         }
     }
     
-    public void train_NN(NeuralNetwork nn, int epoch)
+    public void train_NN(int epoch)
     {
+        NeuralNetwork nn = new NeuralNetwork(
+            new int[]{17, 13, 24, 3},
+            new ActivationType[]{
+                ActivationType.SIGMOID,
+                ActivationType.SIGMOID,
+                ActivationType.SOFTMAX
+            },
+            LossType.CROSS_ENTROPY,
+            0.0005
+        );
+        
         nn.train(trainingInputs, trainingTargets,
                 testingInputs, testingTargets, epoch);
+
+        test_NN(nn);
+        testNewData(nn);
+    }
+    
+    public void train_NE(int maxGeneration)
+    {
+        // We should call this method before creating a population!
+        // It will set parameters for neural network.
+        Chromosome.initGene(
+            inputs,
+            targets,
+            new int[]{17, 13, 24, 3},
+            new ActivationType[]{
+                ActivationType.SIGMOID,
+                ActivationType.SIGMOID,
+                ActivationType.SOFTMAX
+            },
+            LossType.CROSS_ENTROPY
+        );
+        
+        Population population = new Population(250, 0.05);
+        
+        for(int i = 0; i < maxGeneration; ++i) {
+            population.evolve();
+            System.out.print("Generation: " + population.getGenerationNumber() + ", ");
+            System.out.print("Fittest: " + population.getFittest().getFitness() + ", ");
+            System.out.println(String.format("Accuracy: %.2f",
+                 population.getFittest().getFitness() / inputs.length * 100));
+        }
+        
+        test_NN(population.getFittest().getGene());
+        testNewData(population.getFittest().getGene());
     }
     
     public void test_NN(NeuralNetwork nn)
@@ -171,40 +215,8 @@ public class Trainer
             System.out.print(testingTargets[i]);
             System.out.println(nn.getOutput());
         }
-        
-        testNewData(nn);
     }
     
-    public void train_NE()
-    {
-        // We should call this method before creating a population!
-        // It will set parameters for neural network.
-        Chromosome.initGene(
-            inputs,
-            targets,
-            new int[]{17, 13, 24, 3},
-            new ActivationType[]{
-                ActivationType.TANH,
-                ActivationType.TANH,
-                ActivationType.SOFTMAX
-            },
-            LossType.CROSS_ENTROPY
-        );
-        
-        Population population = new Population(250, 0.05);
-        
-        for(int i = 0; i < 10; ++i) {
-            population.evolve();
-            System.out.print("Generation: " + population.getGenerationNumber() + ", ");
-            System.out.print("Fittest: " + population.getFittest().getFitness() + ", ");
-            System.out.println(String.format("Accuracy: %.2f",
-                 population.getFittest().getFitness() / inputs.length * 100));
-        }
-        
-        test_NN(population.getFittest().getGene());
-        testNewData(population.getFittest().getGene());
-    }
-   
     private void testNewData(NeuralNetwork nn)
     {
         while(true)

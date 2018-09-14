@@ -14,6 +14,8 @@ public class League
     private final int numberOfMatch;
     private int currMatch = 0;
     
+    public int minGoals = Integer.MAX_VALUE;
+    public int maxGoals = Integer.MIN_VALUE;
     public int maxGD;
     public int minGD;
     
@@ -55,8 +57,6 @@ public class League
         
         home.GD += match.FTHG - match.FTAG;
         away.GD += match.FTAG - match.FTHG;
-        findMinMaxGD(home);
-        findMinMaxGD(away);
         home.GF += match.FTHG;
         away.GF += match.FTAG;
         home.GA += match.FTAG;
@@ -66,6 +66,14 @@ public class League
         home.homePlayed += 1;
         away.awayPlayed += 1;
         
+        findMinMaxGD(home);
+        findMinMaxGD(away);
+        
+        minGoals = Math.min(minGoals, match.FTHG);
+        minGoals = Math.min(minGoals, match.FTAG);
+        maxGoals = Math.max(maxGoals, match.FTHG);
+        maxGoals = Math.max(maxGoals, match.FTAG);
+                
         switch(match.FTR)
         {
             // Home wins

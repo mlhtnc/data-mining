@@ -28,13 +28,20 @@ public class Trainer
     private Matrix[] testingTargets;
     
     private final int sampleCount;
+    private final boolean predictScore;
     
-    public Trainer(League league, float testPercentage, boolean shuffle)
+    public Trainer(League league, float testPercentage,
+            boolean shuffle, boolean predictScore)
     {
         this.league = league;
         this.sampleCount = league.getMatchCount();
+        this.predictScore = predictScore;
         
-        extractFeatures();
+        if(predictScore == true)
+            extractFeatures2();
+        else
+            extractFeatures();
+        
         initialize(shuffle, testPercentage);
     }
     
@@ -72,36 +79,62 @@ public class Trainer
             Match m = matches[i];
             allMatches[idx] = m;
 
-            inputs[idx] = new Matrix(17, 1);
+            inputs[idx] = new Matrix(8, 1);
             
             // Home team features
-            inputs[idx].data[0][0] = normalize(league.minGD, league.maxGD, m.homeTeam.GD);
-            inputs[idx].data[1][0] = m.homeTeam.getPercentageOfWin();
-            inputs[idx].data[2][0] = m.homeTeam.getPercentageOfDraw();
-            inputs[idx].data[3][0] = m.homeTeam.getPercentageOfLose();
-            inputs[idx].data[4][0] = m.homeTeam.getPercentageOfHomeWin();
-            inputs[idx].data[5][0] = m.homeTeam.getPercentageOfHomeDraw();
-            inputs[idx].data[6][0] = m.homeTeam.getPercentageOfHomeLose();
+            inputs[idx].data[0][0] = normalize(league.minGD, league.maxGD, 0.0, 1.0, m.homeTeam.GD);
+            inputs[idx].data[1][0] = m.homeTeam.getPercentageOfHomeWin();
+            inputs[idx].data[2][0] = m.homeTeam.getPercentageOfHomeDraw();
+            inputs[idx].data[3][0] = m.homeTeam.getPercentageOfHomeLose();
             
             // Away team features
-            inputs[idx].data[7][0] = normalize(league.minGD, league.maxGD, m.awayTeam.GD);
-            inputs[idx].data[8][0] = m.awayTeam.getPercentageOfWin();
-            inputs[idx].data[9][0] = m.awayTeam.getPercentageOfDraw();
-            inputs[idx].data[10][0] = m.awayTeam.getPercentageOfLose();
-            inputs[idx].data[11][0] = m.awayTeam.getPercentageOfAwayWin();
-            inputs[idx].data[12][0] = m.awayTeam.getPercentageOfAwayDraw();
-            inputs[idx].data[13][0] = m.awayTeam.getPercentageOfAwayLose();
-            
-            // Bet365 odds
-            inputs[idx].data[14][0] = normalize(league.minB365H, league.maxB365H, m.B365H);
-            inputs[idx].data[15][0] = normalize(league.minB365D, league.maxB365D, m.B365D);
-            inputs[idx].data[16][0] = normalize(league.minB365A, league.maxB365A, m.B365A);
+            inputs[idx].data[4][0] = normalize(league.minGD, league.maxGD, 0.0, 1.0, m.awayTeam.GD);
+            inputs[idx].data[5][0] = m.awayTeam.getPercentageOfAwayWin();
+            inputs[idx].data[6][0] = m.awayTeam.getPercentageOfAwayDraw();
+            inputs[idx].data[7][0] = m.awayTeam.getPercentageOfAwayLose();
 
             // Targets: Full Time Result
             targets[idx] = new Matrix(3, 1);
             targets[idx].data[0][0] = (m.FTR == 'H') ? 1.0 : 0.0;
             targets[idx].data[1][0] = (m.FTR == 'D') ? 1.0 : 0.0;
             targets[idx].data[2][0] = (m.FTR == 'A') ? 1.0 : 0.0;
+
+            idx++;
+        }
+    }
+    
+    private void extractFeatures2()
+    {
+        Match[] matches = league.getMatches();
+        int idx = 0;
+        
+        allMatches = new Match[sampleCount];
+        inputs = new Matrix[sampleCount];
+        targets = new Matrix[sampleCount];
+        
+        for(int i = 0; i < sampleCount; i++)
+        {
+            Match m = matches[i];
+            allMatches[idx] = m;
+
+            inputs[idx] = new Matrix(8, 1);
+            
+            // Home team features
+            inputs[idx].data[0][0] = normalize(league.minGD, league.maxGD, 0.0, 1.0, m.homeTeam.GD);
+            inputs[idx].data[1][0] = m.homeTeam.getPercentageOfHomeWin();
+            inputs[idx].data[2][0] = m.homeTeam.getPercentageOfHomeDraw();
+            inputs[idx].data[3][0] = m.homeTeam.getPercentageOfHomeLose();
+            
+            // Away team features
+            inputs[idx].data[4][0] = normalize(league.minGD, league.maxGD, 0.0, 1.0, m.awayTeam.GD);
+            inputs[idx].data[5][0] = m.awayTeam.getPercentageOfAwayWin();
+            inputs[idx].data[6][0] = m.awayTeam.getPercentageOfAwayDraw();
+            inputs[idx].data[7][0] = m.awayTeam.getPercentageOfAwayLose();
+
+            // Targets: Full Time Result
+            targets[idx] = new Matrix(2, 1);
+            targets[idx].data[0][0] = normalize(league.minGoals, league.maxGoals, 0.0, 1.0, m.FTHG);
+            targets[idx].data[1][0] = normalize(league.minGoals, league.maxGoals, 0.0, 1.0, m.FTAG);
 
             idx++;
         }
@@ -154,15 +187,19 @@ public class Trainer
     public void train_NN(int epoch)
     {
         NeuralNetwork nn = new NeuralNetwork(
-            new int[]{inputs[0].rows, 13, 24, targets[0].rows},
+            new int[]{inputs[0].rows, 10, 14, targets[0].rows},
             new ActivationType[]{
-                ActivationType.SIGMOID,
-                ActivationType.SIGMOID,
-                ActivationType.SOFTMAX
+                ActivationType.TANH,
+                ActivationType.TANH,
+                ActivationType.TANH
             },
-            LossType.CROSS_ENTROPY,
-            0.0005
+            LossType.MSE,
+            0.3
         );
+        
+        NeuralNetwork bestNN = null;
+        int bestCorrectCount = 0;
+        int bestEpoch = 0;
         
         for(int i = 0; i < epoch; i++)
         {
@@ -183,16 +220,36 @@ public class Trainer
                 nn.setTarget(testingTargets[j]);
                 nn.feedForward();
                 
-                if(testingTargets[j].getMaxRow() == nn.getOutput().getMaxRow())
-                    correct++;
+                if(predictScore == true)
+                {
+                    if(Math.round(nn.getOutput().data[0][0] * league.maxGoals) == testingMatches[j].FTHG &&
+                            Math.round(nn.getOutput().data[1][0] * league.maxGoals) == testingMatches[j].FTAG)
+                    {
+                        correct++;
+                    }
+                }
+                else
+                {
+                    if(testingTargets[j].getMaxRow() == nn.getOutput().getMaxRow())
+                        correct++;
+                }
+            }
+            
+            if(correct > bestCorrectCount)
+            {
+                bestNN = new NeuralNetwork(nn);
+                bestCorrectCount = correct;
+                bestEpoch = i + 1;
             }
             
             avarageLoss /= trainingInputs.length;
             printLog(i, avarageLoss, correct, testingInputs.length);
         }
+        
+        System.out.println("Best Epoch: " + bestEpoch);
 
-        test_NN(nn);
-        testNewData(nn);
+        test_NN(bestNN);
+        testNewData(bestNN);
     }
     
     public void train_NE(int maxGeneration)
@@ -236,8 +293,18 @@ public class Trainer
 
             System.out.println("\nTest#" + (i + 1));
             testingMatches[i].print();
-            System.out.print(testingTargets[i]);
-            System.out.println(nn.getOutput());
+            
+            
+            if(predictScore == true)
+            {
+                System.out.print(Matrix.mult(testingTargets[i], league.maxGoals));
+                System.out.println(Matrix.mult(nn.getOutput(), league.maxGoals));
+            }
+            else
+            {
+                System.out.println(testingTargets[i]);
+                System.out.println(nn.getOutput());
+            }
         }
     }
     
@@ -257,44 +324,31 @@ public class Trainer
             Team homeTeam = teams[sc.nextInt()];
             System.out.print("Away Team: ");
             Team awayTeam = teams[sc.nextInt()];
-            System.out.print("B365H: ");
-            double B365H = sc.nextDouble();
-            System.out.print("B365D: ");
-            double B365D = sc.nextDouble();
-            System.out.print("B365A: ");
-            double B365A = sc.nextDouble();
 
-            Matrix inputs;
-            inputs = new Matrix(17, 1);
+            Matrix _inputs;
+            _inputs = new Matrix(8, 1);
 
             // Home team features
-            inputs.data[0][0] = Trainer.normalize(lg.minGD, lg.maxGD, homeTeam.GD);
-            inputs.data[1][0] = homeTeam.getPercentageOfWin();
-            inputs.data[2][0] = homeTeam.getPercentageOfDraw();
-            inputs.data[3][0] = homeTeam.getPercentageOfLose();
-            inputs.data[4][0] = homeTeam.getPercentageOfHomeWin();
-            inputs.data[5][0] = homeTeam.getPercentageOfHomeDraw();
-            inputs.data[6][0] = homeTeam.getPercentageOfHomeLose();
+            _inputs.data[0][0] = Trainer.normalize(lg.minGD, lg.maxGD, 0.0, 1.0, homeTeam.GD);
+            _inputs.data[1][0] = homeTeam.getPercentageOfHomeWin();
+            _inputs.data[2][0] = homeTeam.getPercentageOfHomeDraw();
+            _inputs.data[3][0] = homeTeam.getPercentageOfHomeLose();
 
             // Away team features
-            inputs.data[7][0] = Trainer.normalize(lg.minGD, lg.maxGD, awayTeam.GD);
-            inputs.data[8][0] = awayTeam.getPercentageOfWin();
-            inputs.data[9][0] = awayTeam.getPercentageOfDraw();
-            inputs.data[10][0] = awayTeam.getPercentageOfLose();
-            inputs.data[11][0] = awayTeam.getPercentageOfAwayWin();
-            inputs.data[12][0] = awayTeam.getPercentageOfAwayDraw();
-            inputs.data[13][0] = awayTeam.getPercentageOfAwayLose();
+            _inputs.data[4][0] = Trainer.normalize(lg.minGD, lg.maxGD, 0.0, 1.0, awayTeam.GD);
+            _inputs.data[5][0] = awayTeam.getPercentageOfAwayWin();
+            _inputs.data[6][0] = awayTeam.getPercentageOfAwayDraw();
+            _inputs.data[7][0] = awayTeam.getPercentageOfAwayLose();
 
-            // Bet365 odds
-            inputs.data[14][0] = Trainer.normalize(lg.minB365H, lg.maxB365H, B365H);
-            inputs.data[15][0] = Trainer.normalize(lg.minB365D, lg.maxB365D, B365D);
-            inputs.data[16][0] = Trainer.normalize(lg.minB365A, lg.maxB365A, B365A);
-
-            nn.setInput(inputs);
+            nn.setInput(_inputs);
             nn.feedForward();
 
             System.out.println(homeTeam.name + " - " + awayTeam.name);
-            System.out.println(nn.getOutput());
+            
+            if(predictScore == true)
+                System.out.println(Matrix.mult(nn.getOutput(), lg.maxGoals));
+            else
+                System.out.println(nn.getOutput());
         }
     }
     
@@ -308,8 +362,8 @@ public class Trainer
         System.out.println(epochStr + lossStr + accuracyStr);
     }
     
-    public static double normalize(double oldMin, double oldMax, double value)
+    public static double normalize(double oldMin, double oldMax, double newMin, double newMax, double value)
     {
-        return ((value - oldMin) / (oldMax - oldMin)) * (1.0 - (-1.0)) + (-1.0);
+        return ((value - oldMin) / (oldMax - oldMin)) * (newMax - newMin) + (newMin);
     }
 }

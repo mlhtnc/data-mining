@@ -30,15 +30,6 @@ public class Match
     // Half Time Result
     public char HTR;
     
-    // Bet365 home win odds
-    public double B365H;
-    
-    // Bet365 draw odds
-    public double B365D;
-    
-    // Bet365 away win odds
-    public double B365A;
-    
     public Match copy()
     {
         Match copy = new Match();
@@ -50,9 +41,6 @@ public class Match
         copy.HTHG = this.HTHG;
         copy.HTAG = this.HTAG;
         copy.HTR  = this.HTR;
-        copy.B365H = this.B365H;
-        copy.B365D = this.B365D;
-        copy.B365A = this.B365A;
         return copy;
     }
     

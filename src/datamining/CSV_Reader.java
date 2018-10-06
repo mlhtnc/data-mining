@@ -57,9 +57,6 @@ public class CSV_Reader
                     match.HTHG      = Integer.parseInt(splitted[map.get("HTHG")]);
                     match.HTAG      = Integer.parseInt(splitted[map.get("HTAG")]);
                     match.HTR       = splitted[map.get("HTR")].charAt(0);
-                    match.B365H     = Double.parseDouble(splitted[map.get("B365H")]);
-                    match.B365D     = Double.parseDouble(splitted[map.get("B365D")]);
-                    match.B365A     = Double.parseDouble(splitted[map.get("B365A")]);
 
                     // If team doesn't exist, create a new team.
                     if(teamNameMap.containsKey(homeTeam) == false)

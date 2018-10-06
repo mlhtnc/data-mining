@@ -31,7 +31,7 @@ public class DataMining
     public void run_NN()
     {
         Trainer trainer = new Trainer(league, 0.3f, true, TrainingType.FULL_TIME_RESULT);
-        trainer.train_NN(30); 
+        trainer.train_NN(300); 
     }
     
     public void run_NE()
@@ -58,6 +58,6 @@ public class DataMining
     public static void main(String[] args)
     {        
         DataMining data_mining = new DataMining();
-        data_mining.run_NE();
+        data_mining.run_NN();
     }
 }

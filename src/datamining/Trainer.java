@@ -45,22 +45,13 @@ public class Trainer
     /**
      * Features:
      * 1. Goal differences of home team
-     * 2. The percentage of winning of home team
-     * 3. The percentage of draw of home team
-     * 4. The percentage of lose of home team
-     * 5. The percentage of winning when home team was home
-     * 6. The percentage of draw when home team was home
-     * 7. The percentage of lose when home team was home
-     * 8. Goal differences of away team
-     * 9. The percentage of winning of away team
-     * 10. The percentage of draw of away team
-     * 11. The percentage of lose of away team
-     * 12. The percentage of winning when away team was away
-     * 13. The percentage of draw when away team was away
-     * 14. The percentage of lose when away team was away
-     * 15. Bet365 home win odds
-     * 16. Bet365 draw odds
-     * 17. Bet365 away lose odds 
+     * 2. The percentage of winning when home team was home
+     * 3. The percentage of draw when home team was home
+     * 4. The percentage of lose when home team was home
+     * 5. Goal differences of away team
+     * 6. The percentage of winning when away team was away
+     * 7. The percentage of draw when away team was away
+     * 8. The percentage of lose when away team was away
      */
     private void extractFeatures()
     {
@@ -173,20 +164,22 @@ public class Trainer
         );
         
         NeuralNetwork bestNN = null;
-        int bestCorrectCount = 0;
+        int bestCorrectCount = -1;
         int bestEpoch = 0;
+        double bestAverageLoss = 0.0;
         
         for(int i = 0; i < epoch; i++)
         {
-            double avarageLoss = 0.0;
+            double averageLoss = 0.0;
             for(int j = 0; j < trainingInputs.length; j++)
             {
                 nn.setInput(trainingInputs[j]);
                 nn.setTarget(trainingTargets[j]);
                 nn.feedForward();
                 nn.backpropagation();
-                avarageLoss += nn.getLoss();
+                averageLoss += nn.getLoss();
             }
+            averageLoss /= trainingInputs.length;
             
             int correct = 0;
             for(int j = 0; j < testingInputs.length; j++)
@@ -218,16 +211,15 @@ public class Trainer
             {
                 bestNN = new NeuralNetwork(nn);
                 bestCorrectCount = correct;
+                bestAverageLoss = averageLoss;
                 bestEpoch = i + 1;
             }
             
-            avarageLoss /= trainingInputs.length;
-            printLog(i, avarageLoss, correct, testingInputs.length);
+            printLog(i, averageLoss, correct, testingInputs.length);
         }
-        
-        System.out.println("Best Epoch: " + bestEpoch);
 
         test_NN(bestNN);
+        printBestEpoch(bestEpoch, bestAverageLoss, bestCorrectCount, testingInputs.length);
         testNewData(bestNN);
     }
     
@@ -342,14 +334,21 @@ public class Trainer
         }
     }
     
-    private void printLog(int epoch, double avarageLoss, int correct, int total)
+    private void printLog(int epoch, double averageLoss, int correct, int total)
     {
         String epochStr = String.format("Epoch: %d, ", epoch + 1);
-        String lossStr  = String.format("Loss = %.10f, ", avarageLoss);
+        String lossStr  = String.format("Loss = %.10f, ", averageLoss);
         String accuracyStr = String.format("Accuracy: %.0f%% (%d/%d)",
                 (((double) correct) / total) * 100.0, correct, total);
         
         System.out.println(epochStr + lossStr + accuracyStr);
+    }
+    
+    private void printBestEpoch(int epoch, double averageLoss, int correct, int total)
+    {
+        System.out.println("Best Epoch:");
+        printLog(epoch - 1, averageLoss, correct, total);     
+        System.out.println();
     }
     
     public static double normalize(double oldMin, double oldMax, double newMin, double newMax, double value)

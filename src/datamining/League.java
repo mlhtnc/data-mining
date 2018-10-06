@@ -19,20 +19,12 @@ public class League
     public int maxGD;
     public int minGD;
     
-    public double maxB365H;
-    public double maxB365D;
-    public double maxB365A;
-    public double minB365H;
-    public double minB365D;
-    public double minB365A;
-    
     public League(Match[] matches, Team[] teams)
     {
         this.matches = matches;
         this.teams = teams;
         this.numberOfMatch = matches.length;
 
-        calcMinMaxOdds();        
         sortTeams();
         extractTableData();
     }
@@ -109,22 +101,6 @@ public class League
         
         sortTeams();
         currMatch++;
-    }
-    
-    private void calcMinMaxOdds()
-    {
-        maxB365H = minB365H = matches[0].B365H;
-        maxB365D = minB365D = matches[0].B365D;
-        maxB365A = minB365A = matches[0].B365A;
-        for(int i = 1; i < matches.length; i++)
-        {
-            maxB365H = Math.max(maxB365H, matches[i].B365H);
-            maxB365D = Math.max(maxB365D, matches[i].B365D);
-            maxB365A = Math.max(maxB365A, matches[i].B365A);
-            minB365H = Math.min(minB365H, matches[i].B365H);
-            minB365D = Math.min(minB365D, matches[i].B365D);
-            minB365A = Math.min(minB365A, matches[i].B365A);
-        }
     }
     
     private void findMinMaxGD(Team t)

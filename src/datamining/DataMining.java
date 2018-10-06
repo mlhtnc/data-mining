@@ -7,10 +7,7 @@ import java.util.Scanner;
  * @author tnc
  */
 public class DataMining
-{
-    // TODO:
-    // We need to keep the fittest of all generations.
-    
+{   
     private static final String SEP = java.io.File.separator;
     private static final String HOME_PATH = System.getProperty("user.home") + SEP;
     private static final String DATA_PATH = HOME_PATH + "Desktop" + SEP + "data" + SEP;
@@ -30,14 +27,8 @@ public class DataMining
      
     public void run_NN()
     {
-        Trainer trainer = new Trainer(league, 0.3f, true, TrainingType.FULL_TIME_RESULT);
-        trainer.train_NN(300); 
-    }
-    
-    public void run_NE()
-    {
-        Trainer trainer = new Trainer(league, 0.3f, false, TrainingType.FULL_TIME_RESULT);
-        trainer.train_NE(5);
+        Trainer trainer = new Trainer(league, 0.1f, true, TrainingType.OVER_UNDER);
+        trainer.train_NN(3000); 
     }
     
     public void chooseLeague()

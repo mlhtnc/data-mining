@@ -7,9 +7,6 @@ import neuralnetwork.ActivationType;
 import neuralnetwork.LossType;
 import neuralnetwork.Matrix;
 import neuralnetwork.NeuralNetwork;
-import neuroevolution.Chromosome;
-import neuroevolution.FitnessType;
-import neuroevolution.Population;
 
 /**
  *
@@ -95,7 +92,8 @@ public class Trainer
                     targets[idx].data[1][0] = normalize(league.minGoals, league.maxGoals, 0.0, 1.0, m.FTAG);
                     break;
                 case OVER_UNDER:
-                    // TODO
+                    targets[idx] = new Matrix(1, 1);
+                    targets[idx].data[0][0] = (m.FTHG + m.FTAG > 2.5) ? 1.0 : 0.0;
                     break;
                 default:
                     System.err.println("Undefined TrainingType.");
@@ -160,7 +158,7 @@ public class Trainer
                 ActivationType.TANH
             },
             LossType.MSE,
-            0.02
+            0.01
         );
         
         NeuralNetwork bestNN = null;
@@ -202,7 +200,8 @@ public class Trainer
                         }
                         break;
                     case OVER_UNDER:
-                        
+                        if(Math.abs(nn.getOutput().data[0][0] - testingTargets[j].data[0][0]) < 0.5)
+                            correct++;
                         break;
                 }
             }
@@ -223,36 +222,6 @@ public class Trainer
         testNewData(bestNN);
     }
     
-    public void train_NE(int maxGeneration)
-    {
-        // We should call this method before creating a population!
-        // It will set parameters for neural network.
-        Chromosome.initGene(
-            inputs,
-            targets,
-            new int[]{inputs[0].rows, 13, 24, targets[0].rows},
-            new ActivationType[]{
-                ActivationType.SIGMOID,
-                ActivationType.SIGMOID,
-                ActivationType.SOFTMAX
-            },
-            LossType.CROSS_ENTROPY
-        );
-        
-        Population population = new Population(250, 0.05, FitnessType.MAX_ONE);
-        
-        for(int i = 0; i < maxGeneration; ++i) {
-            population.evolve();
-            System.out.print("Generation: " + population.getGenerationNumber() + ", ");
-            System.out.print("Fittest: " + population.getFittest().getFitness() + ", ");
-            System.out.println(String.format("Accuracy: %.2f",
-                 population.getFittest().getFitness() / inputs.length * 100));
-        }
-        
-        test_NN(population.getFittest().getGene());
-        testNewData(population.getFittest().getGene());
-    }
-    
     public void test_NN(NeuralNetwork nn)
     {
         // Test out testing data.
@@ -268,15 +237,13 @@ public class Trainer
             switch(trainingType)
             {
                 case FULL_TIME_RESULT:
+                case OVER_UNDER:
                     System.out.println(testingTargets[i]);
                     System.out.println(nn.getOutput());
                     break;
                 case PREDICT_SCORE:
                     System.out.print(Matrix.mult(testingTargets[i], league.maxGoals));
                     System.out.println(Matrix.mult(nn.getOutput(), league.maxGoals));
-                    break;
-                case OVER_UNDER:
-
                     break;
             }
         }
@@ -322,13 +289,11 @@ public class Trainer
             switch(trainingType)
             {
                 case FULL_TIME_RESULT:
+                case OVER_UNDER:
                     System.out.println(nn.getOutput());
                     break;
                 case PREDICT_SCORE:
                     System.out.println(Matrix.mult(nn.getOutput(), lg.maxGoals));
-                    break;
-                case OVER_UNDER:
-
                     break;
             }               
         }

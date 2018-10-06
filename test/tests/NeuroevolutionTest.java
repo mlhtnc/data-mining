@@ -4,6 +4,7 @@ import neuralnetwork.ActivationType;
 import neuralnetwork.LossType;
 import neuralnetwork.Matrix;
 import neuroevolution.Chromosome;
+import neuroevolution.FitnessType;
 import neuroevolution.Population;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -69,7 +70,7 @@ public class NeuroevolutionTest {
             LossType.MSE
         );
         
-        Population population = new Population(100, 0.05);
+        Population population = new Population(100, 0.05, FitnessType.ABS_DIFFERENCE);
         Chromosome fittest = null;
         
         while(true)

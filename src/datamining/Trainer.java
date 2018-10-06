@@ -8,6 +8,7 @@ import neuralnetwork.LossType;
 import neuralnetwork.Matrix;
 import neuralnetwork.NeuralNetwork;
 import neuroevolution.Chromosome;
+import neuroevolution.FitnessType;
 import neuroevolution.Population;
 
 /**
@@ -28,20 +29,16 @@ public class Trainer
     private Matrix[] testingTargets;
     
     private final int sampleCount;
-    private final boolean predictScore;
+    private final TrainingType trainingType;
     
     public Trainer(League league, float testPercentage,
-            boolean shuffle, boolean predictScore)
+            boolean shuffle, TrainingType trainingType)
     {
         this.league = league;
         this.sampleCount = league.getMatchCount();
-        this.predictScore = predictScore;
+        this.trainingType = trainingType;
         
-        if(predictScore == true)
-            extractFeatures2();
-        else
-            extractFeatures();
-        
+        extractFeatures();
         initialize(shuffle, testPercentage);
     }
     
@@ -93,49 +90,27 @@ public class Trainer
             inputs[idx].data[6][0] = m.awayTeam.getPercentageOfAwayDraw();
             inputs[idx].data[7][0] = m.awayTeam.getPercentageOfAwayLose();
 
-            // Targets: Full Time Result
-            targets[idx] = new Matrix(3, 1);
-            targets[idx].data[0][0] = (m.FTR == 'H') ? 1.0 : 0.0;
-            targets[idx].data[1][0] = (m.FTR == 'D') ? 1.0 : 0.0;
-            targets[idx].data[2][0] = (m.FTR == 'A') ? 1.0 : 0.0;
-
-            idx++;
-        }
-    }
-    
-    private void extractFeatures2()
-    {
-        Match[] matches = league.getMatches();
-        int idx = 0;
-        
-        allMatches = new Match[sampleCount];
-        inputs = new Matrix[sampleCount];
-        targets = new Matrix[sampleCount];
-        
-        for(int i = 0; i < sampleCount; i++)
-        {
-            Match m = matches[i];
-            allMatches[idx] = m;
-
-            inputs[idx] = new Matrix(8, 1);
+            switch(trainingType)
+            {
+                case FULL_TIME_RESULT:
+                    targets[idx] = new Matrix(3, 1);
+                    targets[idx].data[0][0] = (m.FTR == 'H') ? 1.0 : 0.0;
+                    targets[idx].data[1][0] = (m.FTR == 'D') ? 1.0 : 0.0;
+                    targets[idx].data[2][0] = (m.FTR == 'A') ? 1.0 : 0.0;
+                    break;
+                case PREDICT_SCORE:
+                    targets[idx] = new Matrix(2, 1);
+                    targets[idx].data[0][0] = normalize(league.minGoals, league.maxGoals, 0.0, 1.0, m.FTHG);
+                    targets[idx].data[1][0] = normalize(league.minGoals, league.maxGoals, 0.0, 1.0, m.FTAG);
+                    break;
+                case OVER_UNDER:
+                    // TODO
+                    break;
+                default:
+                    System.err.println("Undefined TrainingType.");
+                    break;
+            }
             
-            // Home team features
-            inputs[idx].data[0][0] = normalize(league.minGD, league.maxGD, 0.0, 1.0, m.homeTeam.GD);
-            inputs[idx].data[1][0] = m.homeTeam.getPercentageOfHomeWin();
-            inputs[idx].data[2][0] = m.homeTeam.getPercentageOfHomeDraw();
-            inputs[idx].data[3][0] = m.homeTeam.getPercentageOfHomeLose();
-            
-            // Away team features
-            inputs[idx].data[4][0] = normalize(league.minGD, league.maxGD, 0.0, 1.0, m.awayTeam.GD);
-            inputs[idx].data[5][0] = m.awayTeam.getPercentageOfAwayWin();
-            inputs[idx].data[6][0] = m.awayTeam.getPercentageOfAwayDraw();
-            inputs[idx].data[7][0] = m.awayTeam.getPercentageOfAwayLose();
-
-            // Targets: Full Time Result
-            targets[idx] = new Matrix(2, 1);
-            targets[idx].data[0][0] = normalize(league.minGoals, league.maxGoals, 0.0, 1.0, m.FTHG);
-            targets[idx].data[1][0] = normalize(league.minGoals, league.maxGoals, 0.0, 1.0, m.FTAG);
-
             idx++;
         }
     }
@@ -187,14 +162,14 @@ public class Trainer
     public void train_NN(int epoch)
     {
         NeuralNetwork nn = new NeuralNetwork(
-            new int[]{inputs[0].rows, 10, 14, targets[0].rows},
+            new int[]{inputs[0].rows, 10, 13, targets[0].rows},
             new ActivationType[]{
                 ActivationType.TANH,
                 ActivationType.TANH,
                 ActivationType.TANH
             },
             LossType.MSE,
-            0.3
+            0.02
         );
         
         NeuralNetwork bestNN = null;
@@ -220,18 +195,22 @@ public class Trainer
                 nn.setTarget(testingTargets[j]);
                 nn.feedForward();
                 
-                if(predictScore == true)
+                switch(trainingType)
                 {
-                    if(Math.round(nn.getOutput().data[0][0] * league.maxGoals) == testingMatches[j].FTHG &&
+                    case FULL_TIME_RESULT:
+                        if(testingTargets[j].getMaxRow() == nn.getOutput().getMaxRow())
+                            correct++;
+                        break;
+                    case PREDICT_SCORE:
+                        if(Math.round(nn.getOutput().data[0][0] * league.maxGoals) == testingMatches[j].FTHG &&
                             Math.round(nn.getOutput().data[1][0] * league.maxGoals) == testingMatches[j].FTAG)
-                    {
-                        correct++;
-                    }
-                }
-                else
-                {
-                    if(testingTargets[j].getMaxRow() == nn.getOutput().getMaxRow())
-                        correct++;
+                        {
+                            correct++;
+                        }
+                        break;
+                    case OVER_UNDER:
+                        
+                        break;
                 }
             }
             
@@ -268,7 +247,7 @@ public class Trainer
             LossType.CROSS_ENTROPY
         );
         
-        Population population = new Population(250, 0.05);
+        Population population = new Population(250, 0.05, FitnessType.MAX_ONE);
         
         for(int i = 0; i < maxGeneration; ++i) {
             population.evolve();
@@ -294,16 +273,19 @@ public class Trainer
             System.out.println("\nTest#" + (i + 1));
             testingMatches[i].print();
             
-            
-            if(predictScore == true)
+            switch(trainingType)
             {
-                System.out.print(Matrix.mult(testingTargets[i], league.maxGoals));
-                System.out.println(Matrix.mult(nn.getOutput(), league.maxGoals));
-            }
-            else
-            {
-                System.out.println(testingTargets[i]);
-                System.out.println(nn.getOutput());
+                case FULL_TIME_RESULT:
+                    System.out.println(testingTargets[i]);
+                    System.out.println(nn.getOutput());
+                    break;
+                case PREDICT_SCORE:
+                    System.out.print(Matrix.mult(testingTargets[i], league.maxGoals));
+                    System.out.println(Matrix.mult(nn.getOutput(), league.maxGoals));
+                    break;
+                case OVER_UNDER:
+
+                    break;
             }
         }
     }
@@ -345,10 +327,18 @@ public class Trainer
 
             System.out.println(homeTeam.name + " - " + awayTeam.name);
             
-            if(predictScore == true)
-                System.out.println(Matrix.mult(nn.getOutput(), lg.maxGoals));
-            else
-                System.out.println(nn.getOutput());
+            switch(trainingType)
+            {
+                case FULL_TIME_RESULT:
+                    System.out.println(nn.getOutput());
+                    break;
+                case PREDICT_SCORE:
+                    System.out.println(Matrix.mult(nn.getOutput(), lg.maxGoals));
+                    break;
+                case OVER_UNDER:
+
+                    break;
+            }               
         }
     }
     

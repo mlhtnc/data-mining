@@ -16,10 +16,14 @@ public class Population
     
     private int generationNumber;
     
-    public Population(int populationSize, double mutationRate)
+    private FitnessType fitnessType;
+    
+    public Population(int populationSize, double mutationRate,
+            FitnessType fitnessType)
     {
         this.populationSize = populationSize;
-        this.mutationRate  = mutationRate;
+        this.mutationRate = mutationRate;
+        this.fitnessType = fitnessType; 
         chroms = new Chromosome[populationSize];
         
         for(int i = 0; i < chroms.length; ++i)
@@ -61,6 +65,10 @@ public class Population
     
     public Chromosome getFittest() {
         return chroms[0];
+    }
+
+    public FitnessType getFitnessType() {
+        return fitnessType;
     }
     
     @Override

@@ -56,15 +56,17 @@ public class Chromosome implements Comparable<Chromosome>
             gene.setInput(inputs[i]);
             gene.setTarget(targets[i]);
             gene.feedForward();
-
-            // If there is 1 neuron at the output layer,
-            // use this method to measure fitness.
-            if(topology[topology.length - 1] == 1) {
-                fitness += 1.0 - Math.abs(gene.getOutput().data[0][0] - targets[i].data[0][0]);
-            }
-            // Otherwise check if the max one is the target or not.
-            else if(gene.getOutput().getMaxRow() == targets[i].getMaxRow()) {
-                this.fitness++;
+            
+            switch(population.getFitnessType())
+            {
+                case ABS_DIFFERENCE:
+                    if(population.getFitnessType() == FitnessType.ABS_DIFFERENCE)
+                        fitness += 1.0 - Math.abs(gene.getOutput().data[0][0] - targets[i].data[0][0]);
+                    break;
+                case MAX_ONE:
+                    if(gene.getOutput().getMaxRow() == targets[i].getMaxRow())
+                        this.fitness++;
+                    break;
             }
         }
     }

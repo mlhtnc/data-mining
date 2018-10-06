@@ -25,20 +25,19 @@ public class DataMining
         LEAGUE_PATHS[2] = DATA_PATH + "ita" + SEP;
         LEAGUE_PATHS[3] = DATA_PATH + "ger" + SEP;
         LEAGUE_PATHS[4] = DATA_PATH + "tur" + SEP;
-
         chooseLeague();
     }
      
     public void run_NN()
     {
-        Trainer trainer = new Trainer(league, 0.3f, true, true);
-        trainer.train_NN(1000); 
+        Trainer trainer = new Trainer(league, 0.3f, true, TrainingType.FULL_TIME_RESULT);
+        trainer.train_NN(30); 
     }
     
     public void run_NE()
     {
-        Trainer trainer = new Trainer(league, 0.3f, false, false);
-        trainer.train_NE(100);
+        Trainer trainer = new Trainer(league, 0.3f, false, TrainingType.FULL_TIME_RESULT);
+        trainer.train_NE(5);
     }
     
     public void chooseLeague()
@@ -59,6 +58,6 @@ public class DataMining
     public static void main(String[] args)
     {        
         DataMining data_mining = new DataMining();
-        data_mining.run_NN();
+        data_mining.run_NE();
     }
 }

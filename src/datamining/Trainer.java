@@ -95,6 +95,11 @@ public class Trainer
                     targets[idx] = new Matrix(1, 1);
                     targets[idx].data[0][0] = (m.FTHG + m.FTAG > 2.5) ? 1.0 : 0.0;
                     break;
+                case FTR_REDUCED:
+                    targets[idx] = new Matrix(2, 1);
+                    targets[idx].data[0][0] = (m.FTR == 'H') ? 1.0 : ((m.FTR == 'A') ? 0.0 : 0.5);
+                    targets[idx].data[1][0] = (m.FTR == 'A') ? 1.0 : ((m.FTR == 'H') ? 0.0 : 0.5);
+                    break;
                 default:
                     System.err.println("Undefined TrainingType.");
                     break;
@@ -151,14 +156,14 @@ public class Trainer
     public void train_NN(int epoch)
     {
         NeuralNetwork nn = new NeuralNetwork(
-            new int[]{inputs[0].rows, 10, 13, targets[0].rows},
+            new int[]{inputs[0].rows, 20, 30, targets[0].rows},
             new ActivationType[]{
-                ActivationType.TANH,
-                ActivationType.TANH,
-                ActivationType.TANH
+                ActivationType.SIGMOID,
+                ActivationType.SIGMOID,
+                ActivationType.SOFTMAX
             },
-            LossType.MSE,
-            0.01
+            LossType.CROSS_ENTROPY,
+            0.001
         );
         
         NeuralNetwork bestNN = null;
@@ -203,6 +208,21 @@ public class Trainer
                         if(Math.abs(nn.getOutput().data[0][0] - testingTargets[j].data[0][0]) < 0.5)
                             correct++;
                         break;
+                    case FTR_REDUCED:
+                        if(testingMatches[j].FTR == 'D')
+                        {
+                            if(Math.abs(nn.getOutput().data[0][0] - nn.getOutput().data[1][0]) < 0.1)
+                            {
+                                correct++;
+                            }
+                        }
+                        else
+                        {
+                            if(testingTargets[j].getMaxRow() == nn.getOutput().getMaxRow())
+                                correct++;
+                        }
+                                
+                        break;
                 }
             }
             
@@ -238,6 +258,7 @@ public class Trainer
             {
                 case FULL_TIME_RESULT:
                 case OVER_UNDER:
+                case FTR_REDUCED:
                     System.out.println(testingTargets[i]);
                     System.out.println(nn.getOutput());
                     break;
@@ -290,6 +311,7 @@ public class Trainer
             {
                 case FULL_TIME_RESULT:
                 case OVER_UNDER:
+                case FTR_REDUCED:
                     System.out.println(nn.getOutput());
                     break;
                 case PREDICT_SCORE:
